@@ -1,0 +1,32 @@
+# Maven
+target/
+*.class
+
+# Logs
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Spring Boot
+spring.log
+
+# Docker
+docker-compose.override.yml
+
+# Local secrets
+*.pem
+*.key
+*.p12
+*.jks

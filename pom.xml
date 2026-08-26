@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.sih</groupId>
+    <artifactId>disaster-relocation-backend</artifactId>
+    <version>1.0.0</version>
+    <name>disaster-relocation-backend</name>
+    <description>Backend &amp; Geospatial DB module (Purwansh) - SIH 2026 Disaster Risk Assessment &amp; Relocation Planning System</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <!-- Must match the Hibernate core version pulled in by spring-boot-starter-parent 3.3.4 (6.5.3.Final) -->
+        <hibernate-spatial.version>6.5.3.Final</hibernate-spatial.version>
+        <jts.version>1.19.0</jts.version>
+        <!--
+          com.bedatadriven:jackson-datatype-jts (all versions, including the
+          previous 2.4) hard-imports com.vividsolutions.jts.geom.* - the
+          pre-LocationTech JTS package tree from before JTS moved to
+          org.locationtech.jts in 2017. That package's Geometry/Point/Polygon
+          are DIFFERENT CLASSES from org.locationtech.jts.geom.* (which is
+          what jts-core 1.19.0 and every entity/DTO in this project actually
+          use), so bedatadriven's JtsModule would never match our geometry
+          fields - GeoJSON (de)serialization would silently break.
+          Upstream never shipped a LocationTech-compatible release (see
+          https://github.com/bedatadriven/jackson-datatype-jts/issues/17,
+          still open). GraphHopper forked the project specifically to fix
+          this, keeping the SAME package/class name
+          (com.bedatadriven.jackson.datatype.jts.JtsModule) so it's a
+          drop-in replacement, and versions it against specific JTS
+          releases - 2.14 is documented as targeting JTS 1.19.0 exactly,
+          matching jts.version above.
+        -->
+        <jackson-datatype-jts.version>2.14</jackson-datatype-jts.version>
+        <jjwt.version>0.12.6</jjwt.version>
+    </properties>
+
+    <dependencies>
+        <!-- Core web / data / validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- PostgreSQL + PostGIS -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-spatial</artifactId>
+            <version>${hibernate-spatial.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
+
+        <!--
+          GeoJSON <-> JTS Geometry (Jackson). groupId/artifactId are
+          com.graphhopper.external (the org.locationtech.jts-compatible
+          fork) - NOT com.bedatadriven (see property comment above for why).
+          The Java package and class name are unchanged
+          (com.bedatadriven.jackson.datatype.jts.JtsModule), so no source
+          changes are needed anywhere this is imported.
+        -->
+        <dependency>
+            <groupId>com.graphhopper.external</groupId>
+            <artifactId>jackson-datatype-jts</artifactId>
+            <version>${jackson-datatype-jts.version}</version>
+            <!--
+              Force our own directly-declared org.locationtech.jts:jts-core
+              (jts.version, 1.19.0) to govern the classpath rather than
+              whatever jts-core version this fork's own POM declares, so
+              there is exactly one JTS version on the classpath - never two.
+            -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.locationtech.jts</groupId>
+                    <artifactId>jts-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Flyway migrations -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
+        <!-- JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Boilerplate reduction -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>disaster-relocation-backend</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

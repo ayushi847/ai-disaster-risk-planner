@@ -1,0 +1,38 @@
+services:
+
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: disaster-relocation-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: disaster_relocation
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - disaster_relocation_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d disaster_relocation"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: disaster-relocation-backend:1.0
+    container_name: disaster-relocation-backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: disaster_relocation
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  disaster_relocation_pgdata:
