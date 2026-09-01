@@ -1,28 +1,79 @@
 import { useEffect, useState } from "react";
-import { Polyline, Tooltip, Marker } from "react-leaflet";
+import { Polyline, Tooltip, Marker, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import { relocationSites } from "../../utils/relocationSites";
 import { calculateDistance } from "../../utils/mapHelpers";
 
-const endPointIcon = L.divIcon({
-  className: "custom-route-endpoint",
+// ──────────────────────────────────────────────
+// START PIN (Red — Risk Habitation Origin)
+// ──────────────────────────────────────────────
+const startPinIcon = L.divIcon({
+  className: "",
   html: `
     <div style="
-      background: #16a34a;
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      border: 2px solid white;
-      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     ">
-      🏠 Safe Shelter
+      <div style="
+        background: #dc2626;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 7px;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(220,38,38,0.4);
+        white-space: nowrap;
+        margin-bottom: 2px;
+        letter-spacing: 0.3px;
+      ">RISK ZONE</div>
+      <div style="
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid #dc2626;
+      "></div>
     </div>
   `,
-  iconSize: [100, 24],
-  iconAnchor: [50, 12],
+  iconSize: [70, 28],
+  iconAnchor: [35, 28],
+});
+
+// ──────────────────────────────────────────────
+// END PIN (Green — Safe Shelter Destination)
+// ──────────────────────────────────────────────
+const endPinIcon = L.divIcon({
+  className: "",
+  html: `
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    ">
+      <div style="
+        background: #059669;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 7px;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(5,150,105,0.4);
+        white-space: nowrap;
+        margin-bottom: 2px;
+        letter-spacing: 0.3px;
+      ">SAFE SHELTER</div>
+      <div style="
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid #059669;
+      "></div>
+    </div>
+  `,
+  iconSize: [80, 28],
+  iconAnchor: [40, 28],
 });
 
 /**
@@ -104,46 +155,82 @@ export default function EvacuationRoute({ selectedVillage }) {
     return null;
   }
 
-  const isCritical = selectedVillage.riskLevel === "CRITICAL";
-
-  // Midpoint for label
+  // Midpoint for the distance label
   const midIdx = Math.floor(routeCoords.length / 2);
   const midPoint = routeCoords[midIdx] || routeCoords[0];
 
+  const startPoint = routeCoords[0];
+  const endPoint = routeCoords[routeCoords.length - 1];
+
   return (
     <>
-      {/* Outer glow line */}
+      {/* ─── OUTER GLOW (white border effect like Google Maps) ─── */}
       <Polyline
         positions={routeCoords}
         pathOptions={{
-          color: isCritical ? "rgba(239, 68, 68, 0.3)" : "rgba(59, 130, 246, 0.3)",
-          weight: 10,
+          color: "#ffffff",
+          weight: 8,
+          opacity: 0.9,
           lineCap: "round",
           lineJoin: "round",
         }}
       />
 
-      {/* Main road route */}
+      {/* ─── MAIN ROUTE LINE (solid blue — Google Maps style) ─── */}
       <Polyline
         positions={routeCoords}
         pathOptions={{
-          color: isCritical ? "#dc2626" : "#2563eb",
-          weight: 4,
-          dashArray: "10, 6",
-          opacity: 0.9,
+          color: "#4285F4",
+          weight: 5,
+          opacity: 1,
           lineCap: "round",
           lineJoin: "round",
         }}
       >
-        <Tooltip permanent direction="top" position={midPoint}>
-          <span style={{ fontSize: "11px", fontWeight: "700", color: "#1e293b" }}>
-            🚗 {routeInfo.distanceKm.toFixed(1)} km • ~{routeInfo.durationMin} min (Road Route)
-          </span>
+        <Tooltip permanent direction="top" position={midPoint} className="route-tooltip">
+          <div style={{
+            fontSize: "11px",
+            fontWeight: "700",
+            color: "#1e293b",
+            background: "#ffffff",
+            padding: "3px 8px",
+            borderRadius: "4px",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}>
+            <span style={{ color: "#4285F4" }}>●</span>
+            {routeInfo.distanceKm.toFixed(1)} km · ~{routeInfo.durationMin} min
+          </div>
         </Tooltip>
       </Polyline>
 
-      {/* Destination marker */}
-      <Marker position={routeCoords[routeCoords.length - 1]} icon={endPointIcon} />
+      {/* ─── START POINT: Red circle + label ─── */}
+      <CircleMarker
+        center={startPoint}
+        radius={7}
+        pathOptions={{
+          color: "#ffffff",
+          fillColor: "#dc2626",
+          fillOpacity: 1,
+          weight: 2.5,
+        }}
+      />
+      <Marker position={startPoint} icon={startPinIcon} />
+
+      {/* ─── END POINT: Green circle + label ─── */}
+      <CircleMarker
+        center={endPoint}
+        radius={7}
+        pathOptions={{
+          color: "#ffffff",
+          fillColor: "#059669",
+          fillOpacity: 1,
+          weight: 2.5,
+        }}
+      />
+      <Marker position={endPoint} icon={endPinIcon} />
     </>
   );
 }

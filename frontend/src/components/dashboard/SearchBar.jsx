@@ -18,29 +18,30 @@ const SearchBar = ({ villages, onSelectVillage }) => {
     <div
       style={{
         position: "relative",
-        width: "350px",
-        background: "#ffffff",
-        padding: "6px",
-        borderRadius: "10px",
-        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.25)",
-        border: "1px solid #e2e8f0",
+        width: "100%",
+        background: "rgba(255, 255, 255, 0.95)",
+        backdropFilter: "blur(8px)",
+        padding: "3px",
+        borderRadius: "8px",
+        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+        border: "1px solid rgba(226, 232, 240, 0.8)",
         zIndex: 9999,
       }}
     >
       <input
         type="text"
-        placeholder="Search village..."
+        placeholder="🔍 Search habitation..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         style={{
           width: "100%",
           boxSizing: "border-box",
-          padding: "11px 14px",
+          padding: "7px 10px",
           border: "none",
           outline: "none",
-          borderRadius: "7px",
-          fontSize: "14px",
-          background: "#ffffff",
+          borderRadius: "6px",
+          fontSize: "12px",
+          background: "transparent",
           color: "#1e293b",
         }}
       />
@@ -49,32 +50,37 @@ const SearchBar = ({ villages, onSelectVillage }) => {
         <div
           style={{
             position: "absolute",
-            top: "52px",
-            left: "6px",
-            right: "6px",
+            top: "38px",
+            left: "0",
+            right: "0",
             background: "#ffffff",
             border: "1px solid #e2e8f0",
-            borderRadius: "8px",
+            borderRadius: "6px",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
             overflow: "hidden",
             zIndex: 10000,
+            maxHeight: "220px",
+            overflowY: "auto",
           }}
         >
-          {results.map((village) => (
+          {results.slice(0, 8).map((village) => (
             <div
               key={village.id}
               onClick={() => handleSelect(village)}
               style={{
-                padding: "12px",
+                padding: "8px 10px",
                 cursor: "pointer",
                 background: "#ffffff",
                 borderBottom: "1px solid #f1f5f9",
+                transition: "background 0.1s",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "#ffffff")}
             >
               <strong
                 style={{
                   color: "#0f172a",
-                  fontSize: "14px",
+                  fontSize: "12px",
                 }}
               >
                 {village.name}
@@ -82,9 +88,9 @@ const SearchBar = ({ villages, onSelectVillage }) => {
 
               <div
                 style={{
-                  fontSize: "12px",
+                  fontSize: "10.5px",
                   color: "#64748b",
-                  marginTop: "3px",
+                  marginTop: "1px",
                 }}
               >
                 {village.district} · {village.riskLevel}
@@ -98,20 +104,20 @@ const SearchBar = ({ villages, onSelectVillage }) => {
         <div
           style={{
             position: "absolute",
-            top: "52px",
-            left: "6px",
-            right: "6px",
+            top: "38px",
+            left: "0",
+            right: "0",
             background: "#ffffff",
-            padding: "12px",
+            padding: "8px 10px",
             border: "1px solid #e2e8f0",
-            borderRadius: "8px",
+            borderRadius: "6px",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
             color: "#64748b",
-            fontSize: "13px",
+            fontSize: "11px",
             zIndex: 10000,
           }}
         >
-          No villages found
+          No habitations found
         </div>
       )}
     </div>

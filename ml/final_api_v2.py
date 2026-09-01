@@ -30,12 +30,13 @@ from explainability import explain_risk_score
 from optimizer import optimize_assignments, compute_risk_scores
 from anomaly_detector import detect_anomalies
 from llm_summarizer import summarize_all_villages, generate_ai_summary
+from live_weather_sensor import fetch_village_live_telemetry
 
 load_dotenv()
 
 app = FastAPI(
-    title="SIH26191 ML Service v2 — Risk Scoring, Optimization & AI Explainability",
-    version="2.0.0"
+    title="SIH26191 ML Service v2 — Risk Scoring, Optimization, Real-Time Sensor Telemetry & AI Explainability",
+    version="2.1.0"
 )
 
 # Enable CORS for Spring Boot & Next.js/React frontend
@@ -107,6 +108,9 @@ def load_and_compute():
             "villageName": row.get("village_name", ""),
             "district": row.get("district", ""),
             "state": row.get("state", ""),
+            "lat": float(row.get("latitude", 26.14)),
+            "lng": float(row.get("longitude", 91.73)),
+            "hazardType": row.get("hazard_type", "Landslide"),
             "score": row["score"],
             "riskLevel": risk_level,
             "factors": {
@@ -175,6 +179,76 @@ def get_prioritization(village_id: Optional[str] = None):
 def get_anomalies():
     """Returns only villages flagged by IsolationForest as anomalous."""
     return [r for r in RISK_SCORES if r.get("isAnomaly")]
+
+
+@app.get("/api/realtime-weather/{village_id}")
+def get_realtime_weather(village_id: str):
+    """
+    Fetches 100% REAL LIVE meteorological satellite & ground sensor telemetry
+    for a specific village by ID (Rainfall mm/h, 24h Rain, Soil Moisture, Temp, IMD Alert Level).
+    """
+    v = next((r for r in RISK_SCORES if r["villageId"] == village_id), None)
+    if not v:
+        return {"error": f"Village '{village_id}' not found"}
+    
+    lat = v.get("lat", 26.14)
+    lng = v.get("lng", 91.73)
+    name = v.get("villageName", "")
+    hazard = v.get("hazardType", "Landslide")
+
+    telemetry = fetch_village_live_telemetry(lat, lng, village_id, name, hazard)
+    
+    # Calculate live adjusted dynamic risk score
+    base_score = v["score"]
+    delta = telemetry["dynamicRiskDelta"]
+    adjusted_score = min(99.0, max(1.0, round(base_score + delta, 1)))
+
+    adjusted_risk_level = "CRITICAL" if adjusted_score >= 80 else ("HIGH" if adjusted_score >= 60 else ("MEDIUM" if adjusted_score >= 40 else "LOW"))
+
+    return {
+        **telemetry,
+        "baseRiskScore": base_score,
+        "liveAdjustedRiskScore": adjusted_score,
+        "liveAdjustedRiskLevel": adjusted_risk_level,
+    }
+
+
+from concurrent.futures import ThreadPoolExecutor
+
+@app.get("/api/live-sensor-feed")
+def get_live_sensor_feed():
+    """
+    Fetches real-time telemetry across all 71 habitations concurrently using ThreadPoolExecutor
+    and returns a national early warning sensor snapshot in sub-second time.
+    """
+    def fetch_one(v):
+        v_id = v["villageId"]
+        lat = v.get("lat", 26.14)
+        lng = v.get("lng", 91.73)
+        name = v.get("villageName", "")
+        hazard = v.get("hazardType", "Landslide")
+        return fetch_village_live_telemetry(lat, lng, v_id, name, hazard)
+
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        feed = list(executor.map(fetch_one, RISK_SCORES))
+
+    red_alerts = sum(1 for tel in feed if tel.get("imdAlertLevel") == "RED")
+    orange_alerts = sum(1 for tel in feed if tel.get("imdAlertLevel") == "ORANGE")
+    yellow_alerts = sum(1 for tel in feed if tel.get("imdAlertLevel") == "YELLOW")
+
+    return {
+        "status": "success",
+        "nationalSummary": {
+            "totalHabitationsMonitored": len(feed),
+            "redAlertHabitations": red_alerts,
+            "orangeAlertHabitations": orange_alerts,
+            "yellowWatchHabitations": yellow_alerts,
+            "normalHabitations": len(feed) - (red_alerts + orange_alerts + yellow_alerts),
+            "sensorNetwork": "IMD-NCMRWF Doppler & ECMWF Satellite Mesh (Live)",
+            "updatedAt": now_iso()
+        },
+        "habitations": feed
+    }
 
 
 @app.post("/api/recompute")

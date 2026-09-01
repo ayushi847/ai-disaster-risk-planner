@@ -2,8 +2,14 @@ import { villages as fallbackVillages } from "../utils/villages";
 import { hazards as fallbackHazards } from "../utils/hazards";
 import { relocationSites as fallbackSites } from "../utils/relocationSites";
 
-const BACKEND_URL = "http://localhost:8080/api";
+const BACKEND_URL = "http://localhost:8080";
 const ML_URL = "http://localhost:8001/api";
+
+// Lookup map for static curated hazard metadata
+const fallbackMap = {};
+fallbackVillages.forEach(v => {
+  fallbackMap[v.id] = v;
+});
 
 /**
  * Fetches all villages from Spring Boot backend, enriched with ML XAI & AI diagnostics
@@ -16,23 +22,40 @@ export async function getVillages() {
 
     if (backendRes && backendRes.ok) {
       const pageData = await backendRes.json();
-      const rawList = pageData.content || pageData;
+      const rawList = pageData.content || (Array.isArray(pageData) ? pageData : []);
+      
       villageData = rawList.map(v => {
+        const fb = fallbackMap[v.id] || {};
         const coords = v.geometry?.coordinates || [];
         return {
           id: v.id,
-          name: v.name,
-          district: v.district,
-          state: v.state,
-          population: v.population,
-          lat: coords[1] || v.latitude || 26.14,
-          lng: coords[0] || v.longitude || 91.73,
-          riskLevel: v.riskLevel || "MEDIUM",
-          priority: v.priorityLevel || "SHORT_TERM",
-          riskScore: v.riskScore || 50.0,
-          hazardType: (v.name && v.name.toLowerCase().includes("flood")) ? "Flood" : "Landslide"
+          name: v.name || fb.name,
+          district: v.district || fb.district,
+          state: v.state || fb.state,
+          population: v.population || fb.population || 5000,
+          lat: coords[1] || v.latitude || fb.lat || 26.14,
+          lng: coords[0] || v.longitude || fb.lng || 91.73,
+          riskLevel: v.riskLevel || fb.riskLevel || "MEDIUM",
+          priority: v.priorityLevel || fb.priority || "SHORT_TERM",
+          riskScore: v.riskScore || fb.riskScore || 50.0,
+          hazardType: fb.hazardType || (v.name && v.name.toLowerCase().includes("flood") ? "Flood" : "Landslide"),
+          hazardDetail: fb.hazardDetail || fb.hazardType || "Multi-hazard exposure zone",
+          hazardIntensity: fb.hazardIntensity || 0.7,
+          disasterHistory: fb.disasterHistory || 0.6,
+          dominantFactor: fb.dominantFactor || "Geomorphic Hazard Intensity",
+          isAnomaly: fb.isAnomaly || false,
         };
       });
+
+      // Ensure any fallback villages not yet in backend are also included
+      if (villageData.length < fallbackVillages.length) {
+        const existingIds = new Set(villageData.map(v => v.id));
+        fallbackVillages.forEach(fb => {
+          if (!existingIds.has(fb.id)) {
+            villageData.push(fb);
+          }
+        });
+      }
     } else {
       villageData = [...fallbackVillages];
     }
@@ -52,10 +75,10 @@ export async function getVillages() {
               ...v,
               riskScore: ml.score || v.riskScore,
               riskLevel: ml.riskLevel || v.riskLevel,
-              dominantFactor: ml.dominantFactor,
+              dominantFactor: ml.dominantFactor || v.dominantFactor,
               plainEnglishExplanation: ml.plainEnglishExplanation,
               breakdown: ml.breakdown,
-              isAnomaly: ml.isAnomaly,
+              isAnomaly: ml.isAnomaly ?? v.isAnomaly,
               anomalyScore: ml.anomalyScore,
               anomalyReason: ml.anomalyReason,
               aiSummary: ml.aiSummary,
@@ -79,20 +102,6 @@ export async function getVillages() {
  * Fetches Hazard Zones (PostGIS Polygons) from Backend
  */
 export async function getHazardZones() {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/hazard-zones`).catch(() => null);
-    if (res && res.ok) {
-      const data = await res.json();
-      return data.map(h => ({
-        id: h.id,
-        type: h.hazardType === "FLOOD" ? "Flood" : "Landslide",
-        color: h.hazardType === "FLOOD" ? "blue" : "brown",
-        coordinates: h.geometry?.coordinates?.[0]?.map(pt => [pt[1], pt[0]]) || []
-      }));
-    }
-  } catch {
-    // fallback
-  }
   return fallbackHazards;
 }
 
@@ -100,26 +109,6 @@ export async function getHazardZones() {
  * Fetches Relocation Sites from Backend
  */
 export async function getRelocationSites() {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/relocation-sites`).catch(() => null);
-    if (res && res.ok) {
-      const data = await res.json();
-      return data.map(s => {
-        const coords = s.geometry?.coordinates || [];
-        return {
-          id: s.id,
-          name: s.name,
-          lat: coords[1] || 24.82,
-          lng: coords[0] || 92.80,
-          capacity: s.capacityTotal || 500,
-          availableCapacity: Math.max(0, (s.capacityTotal || 500) - (s.capacityUsed || 0)),
-          status: s.status || "AVAILABLE"
-        };
-      });
-    }
-  } catch {
-    // fallback
-  }
   return fallbackSites;
 }
 

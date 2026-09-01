@@ -47,10 +47,28 @@ export function Layout() {
         alignItems: 'center',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0 32px', maxWidth: '1440px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '22px', lineHeight: '32px', letterSpacing: '-0.01em', color: '#054471' }}>
-              Relocation Portal
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ fontFamily: 'Inter', fontWeight: '700', fontSize: '20px', letterSpacing: '-0.01em', color: '#054471' }}>
+              🛡️ NDMA Relocation Governance Portal
             </span>
+            <a
+              href="http://localhost:5173"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontFamily: 'Inter',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: '#2563eb',
+                backgroundColor: '#eff6ff',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                border: '1px solid #bfdbfe'
+              }}
+            >
+              🗺️ Public GIS Map ↗
+            </a>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>

@@ -1402,5 +1402,41 @@ export const relocationSites = [
     "availableCapacity": 7000,
     "status": "AVAILABLE",
     "siteType": "Safe Site / Mega Relief Center"
+  },
+  {
+    "id": "SITE-075",
+    "name": "Prayagraj University Science Campus Elevated Shelter",
+    "district": "Prayagraj",
+    "state": "Uttar Pradesh",
+    "lat": 25.459,
+    "lng": 81.854,
+    "capacity": 8500,
+    "availableCapacity": 8500,
+    "status": "AVAILABLE",
+    "siteType": "Safe Site / Elevated University Complex"
+  },
+  {
+    "id": "SITE-076",
+    "name": "Gwalior District Sports Stadium Safe Relief Complex",
+    "district": "Gwalior",
+    "state": "Madhya Pradesh",
+    "lat": 26.218,
+    "lng": 78.182,
+    "capacity": 9500,
+    "availableCapacity": 9500,
+    "status": "AVAILABLE",
+    "siteType": "Safe Site / Mega Sports Complex Shelter"
+  },
+  {
+    "id": "SITE-077",
+    "name": "Barpeta Town High-Ground Relief Center",
+    "district": "Barpeta",
+    "state": "Assam",
+    "lat": 26.352,
+    "lng": 91.025,
+    "capacity": 7500,
+    "availableCapacity": 7500,
+    "status": "AVAILABLE",
+    "siteType": "Safe Site / Elevated Multi-Purpose Safe Shelter"
   }
 ];

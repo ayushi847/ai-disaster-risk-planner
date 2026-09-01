@@ -95,6 +95,33 @@ const Header = () => {
           <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#ef4444", boxShadow: "0 0 6px #ef4444" }} />
           17 Critical Zones
         </div>
+
+        <a
+          href="http://localhost:5174"
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+            border: "1px solid rgba(124, 58, 237, 0.4)",
+            padding: "5px 12px",
+            borderRadius: "8px",
+            fontSize: "12px",
+            color: "#ffffff",
+            fontWeight: "600",
+            textDecoration: "none",
+            boxShadow: "0 2px 8px rgba(99, 102, 241, 0.35)",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0px)")}
+        >
+          <span>⚖️</span>
+          Authority Admin Portal ↗
+        </a>
       </div>
     </header>
   );

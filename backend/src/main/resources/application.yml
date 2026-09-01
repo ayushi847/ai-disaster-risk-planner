@@ -6,7 +6,7 @@ spring:
     name: disaster-relocation-backend
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:disaster_relocation}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:disaster_relocation}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -40,7 +40,7 @@ app:
     secret: ${JWT_SECRET:change-this-dev-only-secret-key-please-32-bytes-min}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24h
   cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:5174,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:5174}
 
 logging:
   level:
