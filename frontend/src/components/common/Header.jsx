@@ -2,129 +2,252 @@ const Header = () => {
   return (
     <header
       style={{
-        height: "64px",
-        background: "linear-gradient(90deg, #0f172a 0%, #1e293b 100%)",
+        height: "70px",
+        background:
+          "linear-gradient(90deg, #020617 0%, #0f172a 50%, #1e293b 100%)",
         color: "white",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 24px",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+        padding: "0 22px",
+        borderBottom: "1px solid rgba(255,255,255,0.12)",
+        boxShadow: "0 4px 15px rgba(0,0,0,0.25)",
       }}
     >
-      {/* BRAND & TITLE */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+
+      {/* ================= LEFT BRAND ================= */}
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+        }}
+      >
+
+        {/* SIH / AUTHORITY LOGO */}
+
         <div
           style={{
-            background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-            width: "38px",
-            height: "38px",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            boxShadow: "0 0 12px rgba(59, 130, 246, 0.5)",
+            width: "45px",
+            height: "45px",
+            borderRadius: "12px",
+            background:
+              "linear-gradient(135deg,#2563eb,#7c3aed)",
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+            fontSize:"25px",
+            boxShadow:
+              "0 0 18px rgba(59,130,246,0.6)",
           }}
         >
           🛡️
         </div>
+
+
+        {/* TITLE */}
+
         <div>
-          <div style={{ fontSize: "17px", fontWeight: "800", letterSpacing: "0.5px" }}>
-            AI Disaster Risk Assessment & Relocation Platform
+
+          <div
+            style={{
+              fontSize:"18px",
+              fontWeight:"800",
+              letterSpacing:"0.3px",
+              display:"flex",
+              alignItems:"center",
+              gap:"8px"
+            }}
+          >
+
+            AI Disaster Risk Assessment 
+            <span style={{color:"#60a5fa"}}>
+              &
+            </span>
+            Relocation Platform
+
           </div>
-          <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "500" }}>
-            SIH26191 • Real-Time Spatial Optimization & Multi-Hazard AI Diagnostics
+
+
+
+          <div
+            style={{
+              marginTop:"3px",
+              fontSize:"11px",
+              color:"#94a3b8",
+              fontWeight:"500",
+            }}
+          >
+
+            SIH26191 • Intelligent Identification of Hazard-Based Red Zones,
+            Carrying Capacity Assessment & Immediate Relocation Planning
+
           </div>
+
+
         </div>
+
+
       </div>
 
-      {/* SYSTEM STATUS PILLS */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            background: "rgba(16, 185, 129, 0.15)",
-            border: "1px solid rgba(16, 185, 129, 0.3)",
-            padding: "4px 10px",
-            borderRadius: "20px",
-            fontSize: "11.5px",
-            color: "#34d399",
-            fontWeight: "600",
-          }}
-        >
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 6px #10b981" }} />
-          ML Engine v2 (Hungarian + Groq)
-        </div>
+
+
+
+
+      {/* ================= STATUS SECTION ================= */}
+
+
+      <div
+        style={{
+          display:"flex",
+          alignItems:"center",
+          gap:"10px"
+        }}
+      >
+
+
+        {/* ML ENGINE */}
 
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            background: "rgba(59, 130, 246, 0.15)",
-            border: "1px solid rgba(59, 130, 246, 0.3)",
-            padding: "4px 10px",
-            borderRadius: "20px",
-            fontSize: "11.5px",
-            color: "#60a5fa",
-            fontWeight: "600",
+            display:"flex",
+            alignItems:"center",
+            gap:"6px",
+            padding:"5px 12px",
+            borderRadius:"20px",
+            background:"rgba(16,185,129,0.15)",
+            border:"1px solid rgba(16,185,129,0.3)",
+            color:"#34d399",
+            fontSize:"11px",
+            fontWeight:"600"
           }}
         >
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#3b82f6" }} />
+
+          <span
+            style={{
+              width:"7px",
+              height:"7px",
+              borderRadius:"50%",
+              background:"#10b981"
+            }}
+          />
+
+          AI Risk Engine Active
+
+        </div>
+
+
+
+
+
+        {/* POSTGIS */}
+
+        <div
+          style={{
+            display:"flex",
+            alignItems:"center",
+            gap:"6px",
+            padding:"5px 12px",
+            borderRadius:"20px",
+            background:"rgba(59,130,246,0.15)",
+            border:
+            "1px solid rgba(59,130,246,0.3)",
+            color:"#60a5fa",
+            fontSize:"11px",
+            fontWeight:"600"
+          }}
+        >
+
+          <span
+            style={{
+              width:"7px",
+              height:"7px",
+              borderRadius:"50%",
+              background:"#3b82f6"
+            }}
+          />
+
           PostGIS 71 Habitations
+
         </div>
+
+
+
+
+
+        {/* CRITICAL */}
 
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            background: "rgba(239, 68, 68, 0.15)",
-            border: "1px solid rgba(239, 68, 68, 0.3)",
-            padding: "4px 10px",
-            borderRadius: "20px",
-            fontSize: "11.5px",
-            color: "#f87171",
-            fontWeight: "600",
+            display:"flex",
+            alignItems:"center",
+            gap:"6px",
+            padding:"5px 12px",
+            borderRadius:"20px",
+            background:"rgba(239,68,68,0.15)",
+            border:
+            "1px solid rgba(239,68,68,0.3)",
+            color:"#f87171",
+            fontSize:"11px",
+            fontWeight:"600"
           }}
         >
-          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#ef4444", boxShadow: "0 0 6px #ef4444" }} />
+
+          <span
+            style={{
+              width:"7px",
+              height:"7px",
+              borderRadius:"50%",
+              background:"#ef4444"
+            }}
+          />
+
           17 Critical Zones
+
         </div>
+
+
+
+
+
+        {/* ADMIN BUTTON */}
+
 
         <a
           href="http://localhost:5174"
           target="_blank"
           rel="noreferrer"
+
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-            border: "1px solid rgba(124, 58, 237, 0.4)",
-            padding: "5px 12px",
-            borderRadius: "8px",
-            fontSize: "12px",
-            color: "#ffffff",
-            fontWeight: "600",
-            textDecoration: "none",
-            boxShadow: "0 2px 8px rgba(99, 102, 241, 0.35)",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
+            display:"flex",
+            alignItems:"center",
+            gap:"7px",
+            background:
+            "linear-gradient(135deg,#4f46e5,#7c3aed)",
+            padding:"7px 14px",
+            borderRadius:"9px",
+            color:"white",
+            textDecoration:"none",
+            fontSize:"12px",
+            fontWeight:"700",
+            boxShadow:
+            "0 4px 12px rgba(124,58,237,0.4)"
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0px)")}
+
         >
-          <span>⚖️</span>
-          Authority Admin Portal ↗
+
+          ⚖️ Authority Portal ↗
+
         </a>
+
+
       </div>
+
+
     </header>
   );
 };
+
 
 export default Header;

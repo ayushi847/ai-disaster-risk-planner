@@ -3,4 +3,12 @@ node_modules/
 dist/
 build/
 target/
-.DS_Store
+.DS_Store  
+
+
+ml/venv/
+**/venv/
+**/__pycache__/
+*.pyc
+
+

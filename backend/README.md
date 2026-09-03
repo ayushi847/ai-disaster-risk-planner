@@ -130,3 +130,12 @@ authenticated admin's decision/override actions are trusted as input.
    services currently authenticate as an `ADMIN`/`AUTHORITY` account to call
    their ingestion endpoints. Worth a `SERVICE` role + service-account JWTs
    if that's a concern before demo day.
+
+
+
+//uvicorn final_api_v2:app --port 8001
+//npm run dev
+
+//docker compose up -d db
+
+

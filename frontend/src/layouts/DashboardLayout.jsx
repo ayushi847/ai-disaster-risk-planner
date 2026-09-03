@@ -1,24 +1,8 @@
 import Header from "../components/common/Header";
 import Sidebar from "../components/common/Sidebar";
+import { Outlet } from "react-router-dom";
 
-const DashboardLayout = ({
-  children,
-
-    villages,
-
-
-  districtFilter,
-  setDistrictFilter,
-
-  riskFilter,
-  setRiskFilter,
-
-  hazardFilter,
-  setHazardFilter,
-
-  priorityFilter,
-  setPriorityFilter,
-}) => {
+const DashboardLayout = () => {
   return (
     <>
       <Header />
@@ -26,35 +10,23 @@ const DashboardLayout = ({
       <div
         style={{
           display: "flex",
-          height: "calc(100vh - 70px)",
+          height: "calc(100vh - 72px)",
+          background: "#f1f5f9",
+          overflow: "hidden",
         }}
       >
-        <Sidebar
+        <Sidebar />
 
-            villages={villages}
-            
-          districtFilter={districtFilter}
-          setDistrictFilter={setDistrictFilter}
-
-          riskFilter={riskFilter}
-          setRiskFilter={setRiskFilter}
-
-          hazardFilter={hazardFilter}
-          setHazardFilter={setHazardFilter}
-
-          priorityFilter={priorityFilter}
-          setPriorityFilter={setPriorityFilter}
-        />
-
-        <div
+        <main
           style={{
             flex: 1,
-            height: "100%",
-            padding: "10px",
+            padding: "20px",
+            overflowY: "auto",
+            background: "#f8fafc",
           }}
         >
-          {children}
-        </div>
+          <Outlet />
+        </main>
       </div>
     </>
   );

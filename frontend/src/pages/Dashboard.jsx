@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import DashboardLayout from "../layouts/DashboardLayout";
+
 import MapView from "../components/map/MapContainer";
 
 import { villages as initialVillages } from "../utils/villages";
@@ -15,7 +15,7 @@ import VillageDetails from "../components/village/VillageDetails";
 const Dashboard = () => {
   const [villagesList, setVillagesList] = useState(initialVillages);
   const [hazardsList, setHazardsList] = useState(initialHazards);
-  const [activeDisasterTab, setActiveDisasterTab] = useState("ALL"); // 'ALL' | 'Flood' | 'Landslide' | 'Cyclone' | 'Subsidence' | 'LIVE_ALERT'
+  const [activeDisasterTab, setActiveDisasterTab] = useState("ALL");
   const [districtFilter, setDistrictFilter] = useState("ALL");
   const [riskFilter, setRiskFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
@@ -29,44 +29,87 @@ const Dashboard = () => {
   useEffect(() => {
     async function loadData() {
       const liveVillages = await getVillages();
+
       if (liveVillages && liveVillages.length > 0) {
         setVillagesList(liveVillages);
       }
+
       const liveHazards = await getHazardZones();
+
       if (liveHazards && liveHazards.length > 0) {
         setHazardsList(liveHazards);
       }
 
       // Fetch Live Satellite Sensor & Flood Alert Telemetry
       try {
-        const sensorRes = await fetch("http://localhost:8001/api/live-sensor-feed").catch(() => null);
+        const sensorRes = await fetch(
+          "http://localhost:8001/api/live-sensor-feed"
+        ).catch(() => null);
+
         if (sensorRes && sensorRes.ok) {
           const sensorData = await sensorRes.json();
+
           setLiveAlertsSummary(sensorData.nationalSummary);
+
           const map = {};
-          sensorData.habitations?.forEach(h => {
+
+          sensorData.habitations?.forEach((h) => {
             map[h.villageId] = h;
           });
+
           setLiveAlertsMap(map);
         }
       } catch (err) {
         console.warn("Sensor feed fetch error:", err);
       }
     }
+
     loadData();
   }, []);
 
   // Counts by disaster category
   const totalCount = villagesList.length;
-  const floodCount = villagesList.filter(v => v.hazardType === "Flood" || (v.hazardDetail && v.hazardDetail.toLowerCase().includes("flood"))).length;
-  const landslideCount = villagesList.filter(v => v.hazardType === "Landslide" && (!v.hazardDetail || (!v.hazardDetail.toLowerCase().includes("cyclone") && !v.hazardDetail.toLowerCase().includes("fire") && !v.hazardDetail.toLowerCase().includes("subsidence")))).length;
-  const cycloneCount = villagesList.filter(v => (v.hazardDetail && (v.hazardDetail.toLowerCase().includes("cyclone") || v.hazardDetail.toLowerCase().includes("coastal") || v.hazardDetail.toLowerCase().includes("surge")))).length;
-  const subsidenceCount = villagesList.filter(v => (v.hazardDetail && (v.hazardDetail.toLowerCase().includes("subsidence") || v.hazardDetail.toLowerCase().includes("fire") || v.hazardDetail.toLowerCase().includes("sinking")))).length;
-  const anomalyCount = villagesList.filter(v => v.isAnomaly).length;
-  const liveAlertCount = (liveAlertsSummary?.redAlertHabitations || 1) + (liveAlertsSummary?.orangeAlertHabitations || 22);
+
+  const floodCount = villagesList.filter(
+    (v) =>
+      v.hazardType === "Flood" ||
+      (v.hazardDetail &&
+        v.hazardDetail.toLowerCase().includes("flood"))
+  ).length;
+
+  const landslideCount = villagesList.filter(
+    (v) =>
+      v.hazardType === "Landslide" &&
+      (!v.hazardDetail ||
+        (!v.hazardDetail.toLowerCase().includes("cyclone") &&
+          !v.hazardDetail.toLowerCase().includes("fire") &&
+          !v.hazardDetail.toLowerCase().includes("subsidence")))
+  ).length;
+
+  const cycloneCount = villagesList.filter(
+    (v) =>
+      v.hazardDetail &&
+      (v.hazardDetail.toLowerCase().includes("cyclone") ||
+        v.hazardDetail.toLowerCase().includes("coastal") ||
+        v.hazardDetail.toLowerCase().includes("surge"))
+  ).length;
+
+  const subsidenceCount = villagesList.filter(
+    (v) =>
+      v.hazardDetail &&
+      (v.hazardDetail.toLowerCase().includes("subsidence") ||
+        v.hazardDetail.toLowerCase().includes("fire") ||
+        v.hazardDetail.toLowerCase().includes("sinking"))
+  ).length;
+
+  const anomalyCount = villagesList.filter((v) => v.isAnomaly).length;
+
+  const liveAlertCount =
+    (liveAlertsSummary?.redAlertHabitations || 1) +
+    (liveAlertsSummary?.orangeAlertHabitations || 22);
 
   // =====================================
-  // FILTER VILLAGES BY ACTIVE TAB & FILTERS
+  // FILTER VILLAGES
   // =====================================
   const filteredVillages = villagesList.filter((village) => {
     if (showAnomaliesOnly && !village.isAnomaly) {
@@ -76,69 +119,120 @@ const Dashboard = () => {
     // Active Category Tab Filter
     if (activeDisasterTab === "LIVE_ALERT") {
       const tel = liveAlertsMap[village.id];
+
       if (tel) {
-        if (tel.imdAlertLevel !== "RED" && tel.imdAlertLevel !== "ORANGE") return false;
+        if (
+          tel.imdAlertLevel !== "RED" &&
+          tel.imdAlertLevel !== "ORANGE"
+        ) {
+          return false;
+        }
       } else {
-        if (village.riskLevel !== "CRITICAL") return false;
+        if (village.riskLevel !== "CRITICAL") {
+          return false;
+        }
       }
     } else if (activeDisasterTab === "Flood") {
-      const isF = village.hazardType === "Flood" || (village.hazardDetail && village.hazardDetail.toLowerCase().includes("flood"));
+      const isF =
+        village.hazardType === "Flood" ||
+        (village.hazardDetail &&
+          village.hazardDetail.toLowerCase().includes("flood"));
+
       if (!isF) return false;
     } else if (activeDisasterTab === "Landslide") {
-      const isL = village.hazardType === "Landslide" && (!village.hazardDetail || (!village.hazardDetail.toLowerCase().includes("cyclone") && !village.hazardDetail.toLowerCase().includes("fire") && !village.hazardDetail.toLowerCase().includes("subsidence")));
+      const isL =
+        village.hazardType === "Landslide" &&
+        (!village.hazardDetail ||
+          (!village.hazardDetail.toLowerCase().includes("cyclone") &&
+            !village.hazardDetail.toLowerCase().includes("fire") &&
+            !village.hazardDetail.toLowerCase().includes("subsidence")));
+
       if (!isL) return false;
     } else if (activeDisasterTab === "Cyclone") {
-      const isC = village.hazardDetail && (village.hazardDetail.toLowerCase().includes("cyclone") || village.hazardDetail.toLowerCase().includes("coastal") || village.hazardDetail.toLowerCase().includes("surge"));
+      const isC =
+        village.hazardDetail &&
+        (village.hazardDetail.toLowerCase().includes("cyclone") ||
+          village.hazardDetail.toLowerCase().includes("coastal") ||
+          village.hazardDetail.toLowerCase().includes("surge"));
+
       if (!isC) return false;
     } else if (activeDisasterTab === "Subsidence") {
-      const isS = village.hazardDetail && (village.hazardDetail.toLowerCase().includes("subsidence") || village.hazardDetail.toLowerCase().includes("fire") || village.hazardDetail.toLowerCase().includes("sinking"));
+      const isS =
+        village.hazardDetail &&
+        (village.hazardDetail.toLowerCase().includes("subsidence") ||
+          village.hazardDetail.toLowerCase().includes("fire") ||
+          village.hazardDetail.toLowerCase().includes("sinking"));
+
       if (!isS) return false;
     }
 
     const districtMatch =
-      districtFilter === "ALL" || village.district === districtFilter;
+      districtFilter === "ALL" ||
+      village.district === districtFilter;
+
     const riskMatch =
-      riskFilter === "ALL" || village.riskLevel === riskFilter;
+      riskFilter === "ALL" ||
+      village.riskLevel === riskFilter;
+
     const priorityMatch =
-      priorityFilter === "ALL" || village.priority === priorityFilter;
+      priorityFilter === "ALL" ||
+      village.priority === priorityFilter;
 
     return districtMatch && riskMatch && priorityMatch;
   });
 
   // Filter Hazards Layer
   const filteredHazards =
-    activeDisasterTab === "ALL" || activeDisasterTab === "LIVE_ALERT"
+    activeDisasterTab === "ALL" ||
+    activeDisasterTab === "LIVE_ALERT"
       ? hazardsList
       : hazardsList.filter((h) => {
-          if (activeDisasterTab === "Flood") return h.type === "Flood";
-          if (activeDisasterTab === "Landslide") return h.type === "Landslide";
+          if (activeDisasterTab === "Flood") {
+            return h.type === "Flood";
+          }
+
+          if (activeDisasterTab === "Landslide") {
+            return h.type === "Landslide";
+          }
+
           return true;
         });
 
   return (
-    <DashboardLayout
-      villages={villagesList}
-      districtFilter={districtFilter}
-      setDistrictFilter={setDistrictFilter}
-      riskFilter={riskFilter}
-      setRiskFilter={setRiskFilter}
-      priorityFilter={priorityFilter}
-      setPriorityFilter={setPriorityFilter}
-    >
+       
+  <>
+
+
+
+      <SummaryCards
+  villages={villagesList}
+  hazards={hazardsList}
+  liveAlertsSummary={liveAlertsSummary}
+/>
+    
+
+      {/* ================================= */}
+      {/* MAIN DASHBOARD GRID */}
+      {/* ================================= */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 350px",
-          gap: "14px",
-          height: "100%",
+          gridTemplateColumns: "1fr 400px", // right panel bada kiya (pehle 320px tha)
+          gap: "16px",
         }}
       >
         {/* ================================= */}
-        {/* MAP & TOP FILTER SECTION */}
+        {/* LEFT: MAP SECTION */}
         {/* ================================= */}
-        <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "8px" }}>
-          
-          {/* TOP DISASTER CATEGORY TABS (SEPARATED & PROFESSIONAL) */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            gap: "8px",
+          }}
+        >
+          {/* TOP DISASTER CATEGORY TABS */}
           <div
             style={{
               display: "flex",
@@ -153,22 +247,52 @@ const Dashboard = () => {
             }}
           >
             {[
-              { id: "ALL", label: `🌐 All Disasters (${totalCount})`, color: "#2563eb" },
-              { id: "Flood", label: `🌊 Floods & Inundation (${floodCount || 24})`, color: "#0284c7" },
-              { id: "Landslide", label: `🏔️ Landslides & Slopes (${landslideCount || 28})`, color: "#b45309" },
-              { id: "Cyclone", label: `🌀 Cyclones & Coastal (${cycloneCount || 12})`, color: "#0d9488" },
-              { id: "Subsidence", label: `🏚️ Sinking & Mine Fires (${subsidenceCount || 10})`, color: "#e11d48" },
-              { id: "LIVE_ALERT", label: `🚨 Live Satellite Alerts (${liveAlertCount})`, color: "#dc2626", isLive: true },
+              {
+                id: "ALL",
+                label: `🌐 All Disasters (${totalCount})`,
+                color: "#2563eb",
+              },
+              {
+                id: "Flood",
+                label: `🌊 Floods & Inundation (${floodCount || 24})`,
+                color: "#0284c7",
+              },
+              {
+                id: "Landslide",
+                label: `🏔️ Landslides & Slopes (${landslideCount || 28})`,
+                color: "#b45309",
+              },
+              {
+                id: "Cyclone",
+                label: `🌀 Cyclones & Coastal (${cycloneCount || 12})`,
+                color: "#0d9488",
+              },
+              {
+                id: "Subsidence",
+                label: `🏚️ Sinking & Mine Fires (${subsidenceCount || 10})`,
+                color: "#e11d48",
+              },
+              {
+                id: "LIVE_ALERT",
+                label: `🚨 Live Satellite Alerts (${liveAlertCount})`,
+                color: "#dc2626",
+                isLive: true,
+              },
             ].map((tab) => {
               const isActive = activeDisasterTab === tab.id;
+
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveDisasterTab(tab.id)}
                   style={{
-                    border: "none",
+                    border: isActive
+                      ? "none"
+                      : "1px solid #e2e8f0",
                     background: isActive
-                      ? (tab.isLive ? "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)" : tab.color)
+                      ? tab.isLive
+                        ? "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)"
+                        : tab.color
                       : "#f8fafc",
                     color: isActive ? "#ffffff" : "#475569",
                     fontWeight: isActive ? "700" : "600",
@@ -176,9 +300,10 @@ const Dashboard = () => {
                     padding: "6px 12px",
                     borderRadius: "6px",
                     cursor: "pointer",
-                    boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+                    boxShadow: isActive
+                      ? "0 2px 8px rgba(0,0,0,0.15)"
+                      : "none",
                     transition: "all 0.15s ease",
-                    border: isActive ? "none" : "1px solid #e2e8f0",
                     display: "flex",
                     alignItems: "center",
                     gap: "4px",
@@ -190,10 +315,22 @@ const Dashboard = () => {
             })}
           </div>
 
-          {/* MAP WRAPPER WITH SEARCH BAR & HUD */}
-          <div style={{ position: "relative", flex: 1, borderRadius: "10px", overflow: "hidden", border: "1px solid #cbd5e1" }}>
-            
-            {/* FLOATING SEARCH BAR & ANOMALY BUTTON (NO OVERLAP) */}
+          {/* MAP WRAPPER */}
+                     {/* MAP WRAPPER */}
+          <div
+            style={{
+              position: "relative",
+              height: "440px", // pehle 380px tha
+              width: "100%",
+              maxWidth: "800px", // pehle 720px tha
+              margin: "0",
+              borderRadius: "18px",
+              overflow: "hidden",
+              border: "1px solid #e2e8f0",
+              background: "#fff",
+            }}
+          >
+            {/* SEARCH + ANOMALY BUTTON */}
             <div
               style={{
                 position: "absolute",
@@ -210,20 +347,30 @@ const Dashboard = () => {
                   villages={filteredVillages}
                   onSelectVillage={(v) => {
                     setSelectedVillage(v);
+
                     if (v && v.lat && v.lng) {
-                      setFocusLocation({ lat: v.lat, lng: v.lng });
+                      setFocusLocation({
+                        lat: v.lat,
+                        lng: v.lng,
+                      });
                     }
                   }}
                 />
               </div>
 
-              {/* ANOMALY FILTER BUTTON */}
+              {/* ANOMALY FILTER */}
               <button
-                onClick={() => setShowAnomaliesOnly(!showAnomaliesOnly)}
+                onClick={() =>
+                  setShowAnomaliesOnly(!showAnomaliesOnly)
+                }
                 style={{
-                  background: showAnomaliesOnly ? "#d97706" : "rgba(15, 23, 42, 0.85)",
+                  background: showAnomaliesOnly
+                    ? "#d97706"
+                    : "rgba(15, 23, 42, 0.85)",
                   color: "white",
-                  border: showAnomaliesOnly ? "2px solid #fde68a" : "1px solid rgba(255,255,255,0.2)",
+                  border: showAnomaliesOnly
+                    ? "2px solid #fde68a"
+                    : "1px solid rgba(255,255,255,0.2)",
                   backdropFilter: "blur(8px)",
                   padding: "6px 10px",
                   borderRadius: "6px",
@@ -238,11 +385,16 @@ const Dashboard = () => {
                 }}
               >
                 <span>⚠️</span>
-                <span>{showAnomaliesOnly ? "Outliers" : `Outliers (${anomalyCount})`}</span>
+
+                <span>
+                  {showAnomaliesOnly
+                    ? "Outliers"
+                    : `Outliers (${anomalyCount})`}
+                </span>
               </button>
             </div>
 
-            {/* 🚨 LIVE DISASTER EARLY WARNING HUD BANNER */}
+            {/* LIVE DISASTER HUD */}
             <div
               style={{
                 position: "absolute",
@@ -264,23 +416,32 @@ const Dashboard = () => {
               }}
             >
               <span style={{ fontSize: "14px" }}>🚨</span>
+
               <div>
-                <strong style={{ color: "#f87171" }}>LIVE SATELLITE DISASTER RADAR:</strong>{" "}
+                <strong style={{ color: "#f87171" }}>
+                  LIVE SATELLITE DISASTER RADAR:
+                </strong>{" "}
                 <span style={{ color: "#e2e8f0" }}>
-                  Assam (Brahmaputra Flood Basin), UP (Prayagraj Confluence Basin), MP (Chambal Basin), Kerala (Wayanad High Soil Moisture 83%)
+                  Assam (Brahmaputra Flood Basin), UP (Prayagraj
+                  Confluence Basin), MP (Chambal Basin), Kerala
+                  (Wayanad High Soil Moisture 83%)
                 </span>
               </div>
             </div>
 
-            {/* MAP VIEW */}
+            {/* MAP */}
             <MapView
               villages={filteredVillages}
               hazards={filteredHazards}
               selectedVillage={selectedVillage}
               onSelectVillage={(v) => {
                 setSelectedVillage(v);
+
                 if (v && v.lat && v.lng) {
-                  setFocusLocation({ lat: v.lat, lng: v.lng });
+                  setFocusLocation({
+                    lat: v.lat,
+                    lng: v.lng,
+                  });
                 }
               }}
               focusLocation={focusLocation}
@@ -289,7 +450,7 @@ const Dashboard = () => {
         </div>
 
         {/* ================================= */}
-        {/* RIGHT ANALYTICS & DETAILS PANEL */}
+        {/* RIGHT: ANALYTICS & DETAILS */}
         {/* ================================= */}
         <div
           style={{
@@ -300,8 +461,6 @@ const Dashboard = () => {
             paddingRight: "2px",
           }}
         >
-          <SummaryCards villages={filteredVillages} />
-
           <StatisticsPanel villages={filteredVillages} />
 
           <VillageDetails
@@ -311,7 +470,8 @@ const Dashboard = () => {
           />
         </div>
       </div>
-    </DashboardLayout>
+
+    </>
   );
 };
 

@@ -1,0 +1,810 @@
+ Volume in drive D is New Volume
+ Volume Serial Number is 96BF-DA1C
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip
+
+01-09-2026  20:03               370 __init__.py
+01-09-2026  20:03             1,229 __main__.py
+               2 File(s)          1,599 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal
+
+01-09-2026  20:03            10,415 build_env.py
+01-09-2026  20:03            10,245 cache.py
+01-09-2026  20:03            14,128 configuration.py
+01-09-2026  20:03            13,567 exceptions.py
+01-09-2026  20:03               364 main.py
+01-09-2026  20:03             7,246 pyproject.py
+01-09-2026  20:03             6,671 self_outdated_check.py
+01-09-2026  20:03            12,100 wheel_builder.py
+01-09-2026  20:03               592 __init__.py
+               9 File(s)         75,328 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\cli
+
+01-09-2026  20:03             6,562 autocompletion.py
+01-09-2026  20:03             7,810 base_command.py
+01-09-2026  20:03            29,292 cmdoptions.py
+01-09-2026  20:03               787 command_context.py
+01-09-2026  20:03             2,542 main.py
+01-09-2026  20:03             2,701 main_parser.py
+01-09-2026  20:03            11,080 parser.py
+01-09-2026  20:03             8,550 progress_bars.py
+01-09-2026  20:03            17,001 req_command.py
+01-09-2026  20:03             5,233 spinners.py
+01-09-2026  20:03               122 status_codes.py
+01-09-2026  20:03               136 __init__.py
+              12 File(s)         91,816 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\commands
+
+01-09-2026  20:03             7,453 cache.py
+01-09-2026  20:03             1,617 check.py
+01-09-2026  20:03             3,005 completion.py
+01-09-2026  20:03             9,228 configuration.py
+01-09-2026  20:03             6,851 debug.py
+01-09-2026  20:03             5,088 download.py
+01-09-2026  20:03             2,869 freeze.py
+01-09-2026  20:03             1,719 hash.py
+01-09-2026  20:03             1,173 help.py
+01-09-2026  20:03             4,920 index.py
+01-09-2026  20:03            28,243 install.py
+01-09-2026  20:03            12,090 list.py
+01-09-2026  20:03             5,707 search.py
+01-09-2026  20:03             8,208 show.py
+01-09-2026  20:03             3,580 uninstall.py
+01-09-2026  20:03             6,365 wheel.py
+01-09-2026  20:03             3,888 __init__.py
+              17 File(s)        112,004 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\distributions
+
+01-09-2026  20:03             1,244 base.py
+01-09-2026  20:03               667 installed.py
+01-09-2026  20:03             3,957 sdist.py
+01-09-2026  20:03             1,217 wheel.py
+01-09-2026  20:03               879 __init__.py
+               5 File(s)          7,964 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\index
+
+01-09-2026  20:03            18,179 collector.py
+01-09-2026  20:03            37,120 package_finder.py
+01-09-2026  20:03             6,781 sources.py
+01-09-2026  20:03                32 __init__.py
+               4 File(s)         62,112 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\locations
+
+01-09-2026  20:03             1,631 base.py
+01-09-2026  20:03             6,040 _distutils.py
+01-09-2026  20:03             8,137 _sysconfig.py
+01-09-2026  20:03            11,584 __init__.py
+               4 File(s)         27,392 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\metadata
+
+01-09-2026  20:03             8,170 base.py
+01-09-2026  20:03             5,353 pkg_resources.py
+01-09-2026  20:03             1,624 __init__.py
+               3 File(s)         15,147 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\models
+
+01-09-2026  20:03               977 candidate.py
+01-09-2026  20:03             6,482 direct_url.py
+01-09-2026  20:03             2,641 format_control.py
+01-09-2026  20:03             1,090 index.py
+01-09-2026  20:03            10,227 link.py
+01-09-2026  20:03               769 scheme.py
+01-09-2026  20:03             4,600 search_scope.py
+01-09-2026  20:03             1,923 selection_prefs.py
+01-09-2026  20:03             3,981 target_python.py
+01-09-2026  20:03             3,633 wheel.py
+01-09-2026  20:03                65 __init__.py
+              11 File(s)         36,388 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\network
+
+01-09-2026  20:03            11,961 auth.py
+01-09-2026  20:03             2,169 cache.py
+01-09-2026  20:03             6,200 download.py
+01-09-2026  20:03             7,825 lazy_wheel.py
+01-09-2026  20:03            17,036 session.py
+01-09-2026  20:03             4,155 utils.py
+01-09-2026  20:03             1,851 xmlrpc.py
+01-09-2026  20:03                52 __init__.py
+               8 File(s)         51,249 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\operations
+
+01-09-2026  20:03             5,448 check.py
+01-09-2026  20:03            10,833 freeze.py
+01-09-2026  20:03            25,503 prepare.py
+01-09-2026  20:03                 0 __init__.py
+               4 File(s)         41,784 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\operations\build
+
+01-09-2026  20:03             1,200 metadata.py
+01-09-2026  20:03             1,991 metadata_legacy.py
+01-09-2026  20:03             1,144 wheel.py
+01-09-2026  20:03             3,337 wheel_legacy.py
+01-09-2026  20:03                 0 __init__.py
+               5 File(s)          7,672 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\operations\install
+
+01-09-2026  20:03             1,443 editable_legacy.py
+01-09-2026  20:03             4,537 legacy.py
+01-09-2026  20:03            30,269 wheel.py
+01-09-2026  20:03                53 __init__.py
+               4 File(s)         36,302 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\req
+
+01-09-2026  20:03            16,300 constructors.py
+01-09-2026  20:03            17,936 req_file.py
+01-09-2026  20:03            32,517 req_install.py
+01-09-2026  20:03             7,762 req_set.py
+01-09-2026  20:03             4,312 req_tracker.py
+01-09-2026  20:03            24,450 req_uninstall.py
+01-09-2026  20:03             2,925 __init__.py
+               7 File(s)        106,202 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\resolution
+
+01-09-2026  20:03               575 base.py
+01-09-2026  20:03                 0 __init__.py
+               2 File(s)            575 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\resolution\legacy
+
+01-09-2026  20:03            18,005 resolver.py
+01-09-2026  20:03                 0 __init__.py
+               2 File(s)         18,005 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\resolution\resolvelib
+
+01-09-2026  20:03             5,434 base.py
+01-09-2026  20:03            19,397 candidates.py
+01-09-2026  20:03            27,559 factory.py
+01-09-2026  20:03             5,427 found_candidates.py
+01-09-2026  20:03             8,617 provider.py
+01-09-2026  20:03             2,669 reporter.py
+01-09-2026  20:03             5,621 requirements.py
+01-09-2026  20:03            10,795 resolver.py
+01-09-2026  20:03                 0 __init__.py
+               9 File(s)         85,519 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\utils
+
+01-09-2026  20:03             1,220 appdirs.py
+01-09-2026  20:03             1,947 compat.py
+01-09-2026  20:03             5,622 compatibility_tags.py
+01-09-2026  20:03               253 datetime.py
+01-09-2026  20:03             3,304 deprecation.py
+01-09-2026  20:03             3,073 direct_url_helpers.py
+01-09-2026  20:03             1,291 distutils_args.py
+01-09-2026  20:03             1,205 encoding.py
+01-09-2026  20:03             1,082 entrypoints.py
+01-09-2026  20:03             6,075 filesystem.py
+01-09-2026  20:03               789 filetypes.py
+01-09-2026  20:03             3,262 glibc.py
+01-09-2026  20:03             5,332 hashes.py
+01-09-2026  20:03               846 inject_securetransport.py
+01-09-2026  20:03            12,735 logging.py
+01-09-2026  20:03            24,472 misc.py
+01-09-2026  20:03             1,376 models.py
+01-09-2026  20:03             2,989 packaging.py
+01-09-2026  20:03             3,325 parallel.py
+01-09-2026  20:03             1,146 pkg_resources.py
+01-09-2026  20:03             5,220 setuptools_build.py
+01-09-2026  20:03            10,324 subprocess.py
+01-09-2026  20:03             8,210 temp_dir.py
+01-09-2026  20:03             9,317 unpacking.py
+01-09-2026  20:03             1,863 urls.py
+01-09-2026  20:03             3,675 virtualenv.py
+01-09-2026  20:03             6,479 wheel.py
+01-09-2026  20:03             1,053 _log.py
+01-09-2026  20:03                 0 __init__.py
+              29 File(s)        127,485 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_internal\vcs
+
+01-09-2026  20:03             3,058 bazaar.py
+01-09-2026  20:03            17,853 git.py
+01-09-2026  20:03             5,234 mercurial.py
+01-09-2026  20:03            12,195 subversion.py
+01-09-2026  20:03            23,998 versioncontrol.py
+01-09-2026  20:03               611 __init__.py
+               6 File(s)         62,949 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor
+
+01-09-2026  20:03            26,540 appdirs.py
+01-09-2026  20:03            44,858 distro.py
+01-09-2026  20:03           280,501 pyparsing.py
+01-09-2026  20:03            35,547 six.py
+01-09-2026  20:03             4,814 __init__.py
+               5 File(s)        392,260 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\cachecontrol
+
+01-09-2026  20:03             5,015 adapter.py
+01-09-2026  20:03               844 cache.py
+01-09-2026  20:03               724 compat.py
+01-09-2026  20:03            14,525 controller.py
+01-09-2026  20:03             2,613 filewrapper.py
+01-09-2026  20:03             4,205 heuristics.py
+01-09-2026  20:03             7,279 serialize.py
+01-09-2026  20:03               719 wrapper.py
+01-09-2026  20:03             1,352 _cmd.py
+01-09-2026  20:03               313 __init__.py
+              10 File(s)         37,589 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\cachecontrol\caches
+
+01-09-2026  20:03             4,299 file_cache.py
+01-09-2026  20:03               889 redis_cache.py
+01-09-2026  20:03                88 __init__.py
+               3 File(s)          5,276 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\certifi
+
+01-09-2026  20:03             2,916 core.py
+01-09-2026  20:03                65 __init__.py
+01-09-2026  20:03               267 __main__.py
+               3 File(s)          3,248 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\chardet
+
+01-09-2026  20:03            31,640 big5freq.py
+01-09-2026  20:03             1,804 big5prober.py
+01-09-2026  20:03             9,644 chardistribution.py
+01-09-2026  20:03             3,946 charsetgroupprober.py
+01-09-2026  20:03             5,255 charsetprober.py
+01-09-2026  20:03             3,678 codingstatemachine.py
+01-09-2026  20:03             1,236 compat.py
+01-09-2026  20:03             1,904 cp949prober.py
+01-09-2026  20:03             1,737 enums.py
+01-09-2026  20:03             4,051 escprober.py
+01-09-2026  20:03            10,756 escsm.py
+01-09-2026  20:03             3,841 eucjpprober.py
+01-09-2026  20:03            13,741 euckrfreq.py
+01-09-2026  20:03             1,795 euckrprober.py
+01-09-2026  20:03            32,008 euctwfreq.py
+01-09-2026  20:03             1,793 euctwprober.py
+01-09-2026  20:03            20,998 gb2312freq.py
+01-09-2026  20:03             1,800 gb2312prober.py
+01-09-2026  20:03            14,130 hebrewprober.py
+01-09-2026  20:03            26,102 jisfreq.py
+01-09-2026  20:03            19,876 jpcntx.py
+01-09-2026  20:03           110,347 langbulgarianmodel.py
+01-09-2026  20:03           103,969 langgreekmodel.py
+01-09-2026  20:03           103,159 langhebrewmodel.py
+01-09-2026  20:03           107,148 langhungarianmodel.py
+01-09-2026  20:03           136,898 langrussianmodel.py
+01-09-2026  20:03           107,695 langthaimodel.py
+01-09-2026  20:03           100,329 langturkishmodel.py
+01-09-2026  20:03             5,515 latin1prober.py
+01-09-2026  20:03             3,504 mbcharsetprober.py
+01-09-2026  20:03             2,066 mbcsgroupprober.py
+01-09-2026  20:03            26,053 mbcssm.py
+01-09-2026  20:03             6,281 sbcharsetprober.py
+01-09-2026  20:03             4,392 sbcsgroupprober.py
+01-09-2026  20:03             3,866 sjisprober.py
+01-09-2026  20:03            12,789 universaldetector.py
+01-09-2026  20:03             2,848 utf8prober.py
+01-09-2026  20:03               251 version.py
+01-09-2026  20:03             3,354 __init__.py
+              39 File(s)      1,052,199 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\chardet\cli
+
+01-09-2026  20:03             2,831 chardetect.py
+01-09-2026  20:03                 2 __init__.py
+               2 File(s)          2,833 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\chardet\metadata
+
+01-09-2026  20:03            19,784 languages.py
+01-09-2026  20:03                 0 __init__.py
+               2 File(s)         19,784 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\colorama
+
+01-09-2026  20:03             2,624 ansi.py
+01-09-2026  20:03            10,775 ansitowin32.py
+01-09-2026  20:03             1,995 initialise.py
+01-09-2026  20:03             5,556 win32.py
+01-09-2026  20:03             6,607 winterm.py
+01-09-2026  20:03               245 __init__.py
+               6 File(s)         27,802 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\distlib
+
+01-09-2026  20:03            42,528 compat.py
+01-09-2026  20:03            52,398 database.py
+01-09-2026  20:03            21,248 index.py
+01-09-2026  20:03            53,265 locators.py
+01-09-2026  20:03            15,204 manifest.py
+01-09-2026  20:03             4,474 markers.py
+01-09-2026  20:03            40,167 metadata.py
+01-09-2026  20:03            11,178 resources.py
+01-09-2026  20:03            17,671 scripts.py
+01-09-2026  20:03            69,523 util.py
+01-09-2026  20:03            24,247 version.py
+01-09-2026  20:03            44,118 wheel.py
+01-09-2026  20:03               604 __init__.py
+              13 File(s)        396,625 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\distlib\_backport
+
+01-09-2026  20:03             1,012 misc.py
+01-09-2026  20:03            26,471 shutil.py
+01-09-2026  20:03            27,640 sysconfig.py
+01-09-2026  20:03            95,235 tarfile.py
+01-09-2026  20:03               280 __init__.py
+               5 File(s)        150,638 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\html5lib
+
+01-09-2026  20:03            86,410 constants.py
+01-09-2026  20:03           119,981 html5parser.py
+01-09-2026  20:03            16,168 serializer.py
+01-09-2026  20:03            17,017 _ihatexml.py
+01-09-2026  20:03            33,271 _inputstream.py
+01-09-2026  20:03            78,775 _tokenizer.py
+01-09-2026  20:03             5,090 _utils.py
+01-09-2026  20:03             1,195 __init__.py
+               8 File(s)        357,907 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\html5lib\filters
+
+01-09-2026  20:03               948 alphabeticalattributes.py
+01-09-2026  20:03               298 base.py
+01-09-2026  20:03             3,018 inject_meta_charset.py
+01-09-2026  20:03             3,736 lint.py
+01-09-2026  20:03            10,795 optionaltags.py
+01-09-2026  20:03            27,813 sanitizer.py
+01-09-2026  20:03             1,252 whitespace.py
+01-09-2026  20:03                 0 __init__.py
+               8 File(s)         47,860 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\html5lib\treeadapters
+
+01-09-2026  20:03             1,769 genshi.py
+01-09-2026  20:03             1,826 sax.py
+01-09-2026  20:03               709 __init__.py
+               3 File(s)          4,304 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\html5lib\treebuilders
+
+01-09-2026  20:03            14,982 base.py
+01-09-2026  20:03             9,164 dom.py
+01-09-2026  20:03            13,179 etree.py
+01-09-2026  20:03            15,158 etree_lxml.py
+01-09-2026  20:03             3,680 __init__.py
+               5 File(s)         56,163 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\html5lib\treewalkers
+
+01-09-2026  20:03             7,728 base.py
+01-09-2026  20:03             1,456 dom.py
+01-09-2026  20:03             4,682 etree.py
+01-09-2026  20:03             6,572 etree_lxml.py
+01-09-2026  20:03             2,378 genshi.py
+01-09-2026  20:03             5,873 __init__.py
+               6 File(s)         28,689 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\html5lib\_trie
+
+01-09-2026  20:03             1,842 py.py
+01-09-2026  20:03             1,053 _base.py
+01-09-2026  20:03               114 __init__.py
+               3 File(s)          3,009 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\idna
+
+01-09-2026  20:03             3,570 codec.py
+01-09-2026  20:03               376 compat.py
+01-09-2026  20:03            13,235 core.py
+01-09-2026  20:03            44,400 idnadata.py
+01-09-2026  20:03             1,991 intranges.py
+01-09-2026  20:03                23 package_data.py
+01-09-2026  20:03           210,287 uts46data.py
+01-09-2026  20:03               893 __init__.py
+               8 File(s)        274,775 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\msgpack
+
+01-09-2026  20:03             1,129 exceptions.py
+01-09-2026  20:03             6,281 ext.py
+01-09-2026  20:03            39,113 fallback.py
+01-09-2026  20:03                21 _version.py
+01-09-2026  20:03             1,172 __init__.py
+               5 File(s)         47,716 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\packaging
+
+01-09-2026  20:03             8,791 markers.py
+01-09-2026  20:03             4,822 requirements.py
+01-09-2026  20:03            31,792 specifiers.py
+01-09-2026  20:03            16,198 tags.py
+01-09-2026  20:03             4,336 utils.py
+01-09-2026  20:03            15,169 version.py
+01-09-2026  20:03            11,789 _manylinux.py
+01-09-2026  20:03             4,514 _musllinux.py
+01-09-2026  20:03             1,696 _structures.py
+01-09-2026  20:03               687 __about__.py
+01-09-2026  20:03               522 __init__.py
+              11 File(s)        100,316 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\pep517
+
+01-09-2026  20:03             3,596 build.py
+01-09-2026  20:03             6,303 check.py
+01-09-2026  20:03             4,213 colorlog.py
+01-09-2026  20:03             1,113 compat.py
+01-09-2026  20:03             1,173 dirtools.py
+01-09-2026  20:03             6,283 envbuild.py
+01-09-2026  20:03             2,555 meta.py
+01-09-2026  20:03            13,629 wrappers.py
+01-09-2026  20:03               136 __init__.py
+               9 File(s)         39,001 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\pep517\in_process
+
+01-09-2026  20:03            11,182 _in_process.py
+01-09-2026  20:03               580 __init__.py
+               2 File(s)         11,762 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\pkg_resources
+
+01-09-2026  20:03               585 py31compat.py
+01-09-2026  20:03           111,573 __init__.py
+               2 File(s)        112,158 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\progress
+
+01-09-2026  20:03             2,945 bar.py
+01-09-2026  20:03             1,413 counter.py
+01-09-2026  20:03             1,423 spinner.py
+01-09-2026  20:03             5,034 __init__.py
+               4 File(s)         10,815 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\requests
+
+01-09-2026  20:03            22,081 adapters.py
+01-09-2026  20:03             6,561 api.py
+01-09-2026  20:03            10,512 auth.py
+01-09-2026  20:03               483 certs.py
+01-09-2026  20:03             2,121 compat.py
+01-09-2026  20:03            18,979 cookies.py
+01-09-2026  20:03             3,377 exceptions.py
+01-09-2026  20:03             4,104 help.py
+01-09-2026  20:03               791 hooks.py
+01-09-2026  20:03            35,890 models.py
+01-09-2026  20:03               711 packages.py
+01-09-2026  20:03            30,949 sessions.py
+01-09-2026  20:03             4,311 status_codes.py
+01-09-2026  20:03             3,110 structures.py
+01-09-2026  20:03            32,407 utils.py
+01-09-2026  20:03             1,138 _internal_utils.py
+01-09-2026  20:03             5,267 __init__.py
+01-09-2026  20:03               455 __version__.py
+              18 File(s)        183,247 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\resolvelib
+
+01-09-2026  20:03             5,762 providers.py
+01-09-2026  20:03             1,401 reporters.py
+01-09-2026  20:03            17,698 resolvers.py
+01-09-2026  20:03             4,959 structs.py
+01-09-2026  20:03               563 __init__.py
+               5 File(s)         30,383 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\resolvelib\compat
+
+01-09-2026  20:03               162 collections_abc.py
+01-09-2026  20:03                 0 __init__.py
+               2 File(s)            162 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\tenacity
+
+01-09-2026  20:03             1,542 after.py
+01-09-2026  20:03             1,417 before.py
+01-09-2026  20:03             1,966 before_sleep.py
+01-09-2026  20:03             1,426 nap.py
+01-09-2026  20:03             6,858 retry.py
+01-09-2026  20:03             2,886 stop.py
+01-09-2026  20:03             2,204 tornadoweb.py
+01-09-2026  20:03             6,882 wait.py
+01-09-2026  20:03             3,406 _asyncio.py
+01-09-2026  20:03             2,012 _utils.py
+01-09-2026  20:03            18,774 __init__.py
+              11 File(s)         49,373 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\tomli
+
+01-09-2026  20:03            23,118 _parser.py
+01-09-2026  20:03             2,764 _re.py
+01-09-2026  20:03               236 __init__.py
+               3 File(s)         26,118 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\urllib3
+
+01-09-2026  20:03            19,293 connection.py
+01-09-2026  20:03            38,198 connectionpool.py
+01-09-2026  20:03             8,540 exceptions.py
+01-09-2026  20:03             8,853 fields.py
+01-09-2026  20:03             2,538 filepost.py
+01-09-2026  20:03            20,299 poolmanager.py
+01-09-2026  20:03             6,155 request.py
+01-09-2026  20:03            29,024 response.py
+01-09-2026  20:03            11,148 _collections.py
+01-09-2026  20:03                65 _version.py
+01-09-2026  20:03             2,848 __init__.py
+              11 File(s)        146,961 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\urllib3\contrib
+
+01-09-2026  20:03            11,348 appengine.py
+01-09-2026  20:03             4,668 ntlmpool.py
+01-09-2026  20:03            17,402 pyopenssl.py
+01-09-2026  20:03            35,356 securetransport.py
+01-09-2026  20:03             7,313 socks.py
+01-09-2026  20:03               993 _appengine_environ.py
+01-09-2026  20:03                 0 __init__.py
+               7 File(s)         77,080 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\urllib3\contrib\_securetransport
+
+01-09-2026  20:03            18,168 bindings.py
+01-09-2026  20:03            14,304 low_level.py
+01-09-2026  20:03                 0 __init__.py
+               3 File(s)         32,472 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\urllib3\packages
+
+01-09-2026  20:03            35,743 six.py
+01-09-2026  20:03               113 __init__.py
+               2 File(s)         35,856 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\urllib3\packages\backports
+
+01-09-2026  20:03             1,468 makefile.py
+01-09-2026  20:03                 0 __init__.py
+               2 File(s)          1,468 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\urllib3\packages\ssl_match_hostname
+
+01-09-2026  20:03             5,839 _implementation.py
+01-09-2026  20:03               951 __init__.py
+               2 File(s)          6,790 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\urllib3\util
+
+01-09-2026  20:03             5,070 connection.py
+01-09-2026  20:03             1,660 proxy.py
+01-09-2026  20:03               520 queue.py
+01-09-2026  20:03             4,266 request.py
+01-09-2026  20:03             3,617 response.py
+01-09-2026  20:03            21,993 retry.py
+01-09-2026  20:03             7,152 ssltransport.py
+01-09-2026  20:03            17,672 ssl_.py
+01-09-2026  20:03            10,271 timeout.py
+01-09-2026  20:03            14,479 url.py
+01-09-2026  20:03             5,557 wait.py
+01-09-2026  20:03             1,204 __init__.py
+              12 File(s)         93,461 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pip\_vendor\webencodings
+
+01-09-2026  20:03             9,210 labels.py
+01-09-2026  20:03             1,364 mklabels.py
+01-09-2026  20:03             6,716 tests.py
+01-09-2026  20:03             4,632 x_user_defined.py
+01-09-2026  20:03            10,921 __init__.py
+               5 File(s)         32,843 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pkg_resources
+
+01-09-2026  20:03           108,202 __init__.py
+               1 File(s)        108,202 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pkg_resources\extern
+
+01-09-2026  20:03             2,362 __init__.py
+               1 File(s)          2,362 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pkg_resources\tests\data\my-test-package-source
+
+01-09-2026  20:03               104 setup.py
+               1 File(s)            104 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pkg_resources\_vendor
+
+01-09-2026  20:03            24,701 appdirs.py
+01-09-2026  20:03           232,056 pyparsing.py
+01-09-2026  20:03                 0 __init__.py
+               3 File(s)        256,757 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\pkg_resources\_vendor\packaging
+
+01-09-2026  20:03             9,518 markers.py
+01-09-2026  20:03             4,929 requirements.py
+01-09-2026  20:03            31,944 specifiers.py
+01-09-2026  20:03            24,067 tags.py
+01-09-2026  20:03             1,811 utils.py
+01-09-2026  20:03            15,470 version.py
+01-09-2026  20:03             1,128 _compat.py
+01-09-2026  20:03             2,022 _structures.py
+01-09-2026  20:03             1,812 _typing.py
+01-09-2026  20:03               736 __about__.py
+01-09-2026  20:03               562 __init__.py
+              11 File(s)         93,999 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools
+
+01-09-2026  20:03             7,077 archive_util.py
+01-09-2026  20:03            10,280 build_meta.py
+01-09-2026  20:03            22,279 config.py
+01-09-2026  20:03             5,474 depends.py
+01-09-2026  20:03               949 dep_util.py
+01-09-2026  20:03            42,591 dist.py
+01-09-2026  20:03               524 errors.py
+01-09-2026  20:03             1,684 extension.py
+01-09-2026  20:03             4,873 glob.py
+01-09-2026  20:03             3,567 installer.py
+01-09-2026  20:03               812 launch.py
+01-09-2026  20:03             2,335 lib2to3_ex.py
+01-09-2026  20:03             5,217 monkey.py
+01-09-2026  20:03            50,561 msvc.py
+01-09-2026  20:03             3,093 namespaces.py
+01-09-2026  20:03            39,886 package_index.py
+01-09-2026  20:03               245 py34compat.py
+01-09-2026  20:03            14,151 sandbox.py
+01-09-2026  20:03               941 unicode_utils.py
+01-09-2026  20:03               144 version.py
+01-09-2026  20:03             8,288 wheel.py
+01-09-2026  20:03               714 windows_support.py
+01-09-2026  20:03               218 _deprecation_warning.py
+01-09-2026  20:03             2,392 _imp.py
+01-09-2026  20:03             7,681 __init__.py
+              25 File(s)        235,976 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools\command
+
+01-09-2026  20:03             2,381 alias.py
+01-09-2026  20:03            16,604 bdist_egg.py
+01-09-2026  20:03               900 bdist_rpm.py
+01-09-2026  20:03             4,415 build_clib.py
+01-09-2026  20:03            13,212 build_ext.py
+01-09-2026  20:03             8,930 build_py.py
+01-09-2026  20:03             8,045 develop.py
+01-09-2026  20:03               960 dist_info.py
+01-09-2026  20:03            85,308 easy_install.py
+01-09-2026  20:03            25,335 egg_info.py
+01-09-2026  20:03             4,705 install.py
+01-09-2026  20:03             2,203 install_egg_info.py
+01-09-2026  20:03             3,875 install_lib.py
+01-09-2026  20:03             2,593 install_scripts.py
+01-09-2026  20:03             4,946 py36compat.py
+01-09-2026  20:03               468 register.py
+01-09-2026  20:03             2,128 rotate.py
+01-09-2026  20:03               658 saveopts.py
+01-09-2026  20:03             5,967 sdist.py
+01-09-2026  20:03             5,051 setopt.py
+01-09-2026  20:03             9,490 test.py
+01-09-2026  20:03               462 upload.py
+01-09-2026  20:03             7,218 upload_docs.py
+01-09-2026  20:03               217 __init__.py
+              24 File(s)        216,071 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools\extern
+
+01-09-2026  20:03             2,407 __init__.py
+               1 File(s)          2,407 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools\_distutils
+
+01-09-2026  20:03             8,572 archive_util.py
+01-09-2026  20:03            14,894 bcppcompiler.py
+01-09-2026  20:03            47,607 ccompiler.py
+01-09-2026  20:03            18,079 cmd.py
+01-09-2026  20:03             4,827 config.py
+01-09-2026  20:03             8,876 core.py
+01-09-2026  20:03            16,938 cygwinccompiler.py
+01-09-2026  20:03               139 debug.py
+01-09-2026  20:03             3,491 dep_util.py
+01-09-2026  20:03             7,778 dir_util.py
+01-09-2026  20:03            50,421 dist.py
+01-09-2026  20:03             3,577 errors.py
+01-09-2026  20:03            10,515 extension.py
+01-09-2026  20:03            17,784 fancy_getopt.py
+01-09-2026  20:03            13,407 filelist.py
+01-09-2026  20:03             8,148 file_util.py
+01-09-2026  20:03             1,969 log.py
+01-09-2026  20:03            30,453 msvc9compiler.py
+01-09-2026  20:03            23,540 msvccompiler.py
+01-09-2026  20:03               455 py35compat.py
+01-09-2026  20:03               212 py38compat.py
+01-09-2026  20:03             3,498 spawn.py
+01-09-2026  20:03            21,349 sysconfig.py
+01-09-2026  20:03            12,483 text_file.py
+01-09-2026  20:03            14,957 unixccompiler.py
+01-09-2026  20:03            23,185 util.py
+01-09-2026  20:03            12,514 version.py
+01-09-2026  20:03             5,133 versionpredicate.py
+01-09-2026  20:03            20,813 _msvccompiler.py
+01-09-2026  20:03               250 __init__.py
+              30 File(s)        405,864 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools\_distutils\command
+
+01-09-2026  20:03             5,562 bdist.py
+01-09-2026  20:03             4,913 bdist_dumb.py
+01-09-2026  20:03            35,579 bdist_msi.py
+01-09-2026  20:03            21,537 bdist_rpm.py
+01-09-2026  20:03            16,030 bdist_wininst.py
+01-09-2026  20:03             5,773 build.py
+01-09-2026  20:03             8,022 build_clib.py
+01-09-2026  20:03            31,720 build_ext.py
+01-09-2026  20:03            17,190 build_py.py
+01-09-2026  20:03             6,232 build_scripts.py
+01-09-2026  20:03             5,637 check.py
+01-09-2026  20:03             2,776 clean.py
+01-09-2026  20:03            13,117 config.py
+01-09-2026  20:03            27,488 install.py
+01-09-2026  20:03             2,822 install_data.py
+01-09-2026  20:03             2,603 install_egg_info.py
+01-09-2026  20:03             1,298 install_headers.py
+01-09-2026  20:03             8,397 install_lib.py
+01-09-2026  20:03             2,017 install_scripts.py
+01-09-2026  20:03               671 py37compat.py
+01-09-2026  20:03            11,712 register.py
+01-09-2026  20:03            19,005 sdist.py
+01-09-2026  20:03             7,597 upload.py
+01-09-2026  20:03               799 __init__.py
+              24 File(s)        258,497 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools\_vendor
+
+01-09-2026  20:03            15,130 ordered_set.py
+01-09-2026  20:03           232,056 pyparsing.py
+01-09-2026  20:03                 0 __init__.py
+               3 File(s)        247,186 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools\_vendor\more_itertools
+
+01-09-2026  20:03           117,968 more.py
+01-09-2026  20:03            16,256 recipes.py
+01-09-2026  20:03                82 __init__.py
+               3 File(s)        134,306 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\setuptools\_vendor\packaging
+
+01-09-2026  20:03             9,509 markers.py
+01-09-2026  20:03             4,917 requirements.py
+01-09-2026  20:03            31,944 specifiers.py
+01-09-2026  20:03            24,067 tags.py
+01-09-2026  20:03             1,811 utils.py
+01-09-2026  20:03            15,470 version.py
+01-09-2026  20:03             1,128 _compat.py
+01-09-2026  20:03             2,022 _structures.py
+01-09-2026  20:03             1,812 _typing.py
+01-09-2026  20:03               736 __about__.py
+01-09-2026  20:03               562 __init__.py
+              11 File(s)         93,978 bytes
+
+ Directory of D:\hackathon\Disaster-Relocation-System\backend\venv\Lib\site-packages\_distutils_hack
+
+01-09-2026  20:03                44 override.py
+01-09-2026  20:03             3,688 __init__.py
+               2 File(s)          3,732 bytes
+
+     Total Files Listed:
+             528 File(s)      6,925,876 bytes
+               0 Dir(s)  255,271,211,008 bytes free

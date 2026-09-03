@@ -1,235 +1,497 @@
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 
-const StatisticsPanel = ({ villages }) => {
-  // -----------------------------
-  // RISK COUNTS
-  // -----------------------------
+const StatisticsPanel = ({ villages = [] }) => {
 
-  const criticalCount = villages.filter(
-    (village) => village.riskLevel === "CRITICAL"
-  ).length;
 
-  const highCount = villages.filter(
-    (village) => village.riskLevel === "HIGH"
-  ).length;
+  // ============================
+  // LIVE RISK DATA
+  // ============================
 
-  const mediumCount = villages.filter(
-    (village) => village.riskLevel === "MEDIUM"
-  ).length;
+  const riskData = [
 
-  const lowCount = villages.filter(
-    (village) => village.riskLevel === "LOW"
-  ).length;
+    {
+      name: "Critical",
+      value: villages.filter(
+        v => v.riskLevel === "CRITICAL"
+      ).length,
+      color: "#dc2626"
+    },
 
-  // -----------------------------
-  // HAZARD COUNTS
-  // -----------------------------
 
-  const floodCount = villages.filter(
-    (village) => village.hazardType === "Flood"
-  ).length;
+    {
+      name: "High",
+      value: villages.filter(
+        v => v.riskLevel === "HIGH"
+      ).length,
+      color: "#ea580c"
+    },
 
-  const landslideCount = villages.filter(
-    (village) => village.hazardType === "Landslide"
-  ).length;
 
-  const maxRiskCount = Math.max(
-    criticalCount,
-    highCount,
-    mediumCount,
-    lowCount,
-    1
+    {
+      name: "Medium",
+      value: villages.filter(
+        v => v.riskLevel === "MEDIUM"
+      ).length,
+      color: "#ca8a04"
+    },
+
+
+    {
+      name: "Low",
+      value: villages.filter(
+        v => v.riskLevel === "LOW"
+      ).length,
+      color: "#16a34a"
+    }
+
+  ].filter(
+    item => item.value > 0
   );
 
-  const maxHazardCount = Math.max(
-    floodCount,
-    landslideCount,
-    1
+
+
+
+  // ============================
+  // LIVE HAZARD DATA
+  // ============================
+
+
+  const hazardData = [
+
+    {
+      name:"Flood",
+
+      value:villages.filter(
+        v => v.hazardType === "Flood"
+      ).length,
+
+      color:"#2563eb"
+    },
+
+
+    {
+      name:"Landslide",
+
+      value:villages.filter(
+        v => v.hazardType === "Landslide"
+      ).length,
+
+      color:"#92400e"
+    }
+
+
+  ].filter(
+    item => item.value > 0
   );
 
-  // -----------------------------
-  // STYLES
-  // -----------------------------
 
-  const panelStyle = {
-    background: "#ffffff",
-    border: "1px solid #e2e8f0",
-    borderRadius: "12px",
-    padding: "12px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-  };
 
-  const titleStyle = {
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "#0f172a",
-    marginBottom: "18px",
-  };
-
-  const rowStyle = {
-    marginBottom: "14px",
-  };
-
-  const labelStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "13px",
-    marginBottom: "6px",
-    color: "#475569",
-  };
-
-  const barBackground = {
-    width: "100%",
-    height: "8px",
-    background: "#e2e8f0",
-    borderRadius: "10px",
-    overflow: "hidden",
-  };
 
   return (
+
     <div
+
       style={{
-        display: "grid",
-        gridTemplateColumns: "1fr",
-        gap: "15px",
-        marginBottom: "15px",
+
+        display:"grid",
+
+        gridTemplateColumns:"1fr 1fr",
+
+        gap:"16px",
+
+        marginBottom:"15px"
+
       }}
+
     >
-      {/* ========================= */}
-      {/* RISK DISTRIBUTION */}
-      {/* ========================= */}
 
-      <div style={panelStyle}>
-        <div style={titleStyle}>
-          Risk Distribution
-        </div>
 
-        {/* CRITICAL */}
-        <div style={rowStyle}>
-          <div style={labelStyle}>
-            <span>Critical</span>
-            <strong>{criticalCount}</strong>
-          </div>
 
-          <div style={barBackground}>
-            <div
-              style={{
-                width: `${(criticalCount / maxRiskCount) * 100}%`,
-                height: "100%",
-                background: "#dc2626",
-                borderRadius: "10px",
-              }}
-            />
-          </div>
-        </div>
+      <ChartCard
 
-        {/* HIGH */}
-        <div style={rowStyle}>
-          <div style={labelStyle}>
-            <span>High</span>
-            <strong>{highCount}</strong>
-          </div>
+        title="Risk Distribution"
 
-          <div style={barBackground}>
-            <div
-              style={{
-                width: `${(highCount / maxRiskCount) * 100}%`,
-                height: "100%",
-                background: "#ea580c",
-                borderRadius: "10px",
-              }}
-            />
-          </div>
-        </div>
+        data={riskData}
 
-        {/* MEDIUM */}
-        <div style={rowStyle}>
-          <div style={labelStyle}>
-            <span>Medium</span>
-            <strong>{mediumCount}</strong>
-          </div>
+        total={villages.length}
 
-          <div style={barBackground}>
-            <div
-              style={{
-                width: `${(mediumCount / maxRiskCount) * 100}%`,
-                height: "100%",
-                background: "#ca8a04",
-                borderRadius: "10px",
-              }}
-            />
-          </div>
-        </div>
+      />
 
-        {/* LOW */}
-        <div style={rowStyle}>
-          <div style={labelStyle}>
-            <span>Low</span>
-            <strong>{lowCount}</strong>
-          </div>
 
-          <div style={barBackground}>
-            <div
-              style={{
-                width: `${(lowCount / maxRiskCount) * 100}%`,
-                height: "100%",
-                background: "#16a34a",
-                borderRadius: "10px",
-              }}
-            />
-          </div>
-        </div>
-      </div>
 
-      {/* ========================= */}
-      {/* HAZARD DISTRIBUTION */}
-      {/* ========================= */}
+      <ChartCard
 
-      <div style={panelStyle}>
-        <div style={titleStyle}>
-          Hazard Distribution
-        </div>
+        title="Hazard Distribution"
 
-        {/* FLOOD */}
-        <div style={rowStyle}>
-          <div style={labelStyle}>
-            <span>Flood</span>
-            <strong>{floodCount}</strong>
-          </div>
+        data={hazardData}
 
-          <div style={barBackground}>
-            <div
-              style={{
-                width: `${(floodCount / maxHazardCount) * 100}%`,
-                height: "100%",
-                background: "#2563eb",
-                borderRadius: "10px",
-              }}
-            />
-          </div>
-        </div>
+        total={villages.length}
 
-        {/* LANDSLIDE */}
-        <div style={rowStyle}>
-          <div style={labelStyle}>
-            <span>Landslide</span>
-            <strong>{landslideCount}</strong>
-          </div>
+      />
 
-          <div style={barBackground}>
-            <div
-              style={{
-                width: `${(landslideCount / maxHazardCount) * 100}%`,
-                height: "100%",
-                background: "#92400e",
-                borderRadius: "10px",
-              }}
-            />
-          </div>
-        </div>
-      </div>
+
+
     </div>
+
   );
+
 };
+
+
+
+
+
+
+// =================================
+// CHART CARD COMPONENT
+// =================================
+
+
+const ChartCard = ({
+  title,
+  data,
+  total
+}) => {
+
+
+  return (
+
+    <div
+
+      style={{
+
+        background:"#ffffff",
+
+        border:"1px solid #e2e8f0",
+
+        borderRadius:"16px",
+
+        padding:"16px",
+
+        height:"320px",
+
+        display:"flex",
+
+        flexDirection:"column",
+
+        boxShadow:
+        "0 4px 12px rgba(15,23,42,0.06)"
+
+      }}
+
+    >
+
+
+
+      <h3
+
+        style={{
+
+          margin:"0 0 5px",
+
+          fontSize:"16px",
+
+          fontWeight:700,
+
+          color:"#0f172a"
+
+        }}
+
+      >
+
+        {title}
+
+      </h3>
+
+
+
+
+
+      <div
+
+        style={{
+
+          flex:1,
+
+          position:"relative"
+
+        }}
+
+      >
+
+
+
+      <ResponsiveContainer
+
+        width="100%"
+
+        height="100%"
+
+      >
+
+
+      <PieChart>
+
+
+        <Pie
+
+
+          data={data}
+
+
+          dataKey="value"
+
+
+          nameKey="name"
+
+
+          cx="50%"
+
+
+          cy="50%"
+
+
+          innerRadius={65}
+
+
+          outerRadius={95}
+
+
+          startAngle={90}
+
+
+          endAngle={-270}
+
+
+          paddingAngle={2}
+
+
+          stroke="none"
+
+
+        >
+
+
+
+        {
+
+          data.map(
+
+            (entry,index)=>(
+
+
+              <Cell
+
+                key={index}
+
+                fill={entry.color}
+
+              />
+
+
+            )
+
+          )
+
+        }
+
+
+
+        </Pie>
+
+
+
+        <Tooltip />
+
+
+      </PieChart>
+
+
+
+      </ResponsiveContainer>
+
+
+
+
+
+
+      {/* CENTER TEXT */}
+
+
+      <div
+
+        style={{
+
+          position:"absolute",
+
+          top:"50%",
+
+          left:"50%",
+
+          transform:
+          "translate(-50%,-50%)",
+
+          textAlign:"center"
+
+        }}
+
+      >
+
+
+        <div
+
+          style={{
+
+            fontSize:"28px",
+
+            fontWeight:800,
+
+            color:"#0f172a"
+
+          }}
+
+        >
+
+          {total}
+
+        </div>
+
+
+
+        <div
+
+          style={{
+
+            fontSize:"12px",
+
+            color:"#64748b"
+
+          }}
+
+        >
+
+          Total
+
+        </div>
+
+
+
+      </div>
+
+
+
+      </div>
+
+
+
+
+
+      {/* LEGEND */}
+
+
+
+      <div
+
+        style={{
+
+          display:"flex",
+
+          justifyContent:"center",
+
+          gap:"14px",
+
+          flexWrap:"wrap",
+
+          marginTop:"8px"
+
+        }}
+
+      >
+
+
+
+      {
+
+        data.map(item=>(
+
+
+          <div
+
+            key={item.name}
+
+            style={{
+
+              display:"flex",
+
+              alignItems:"center",
+
+              gap:"5px",
+
+              fontSize:"12px",
+
+              color:"#475569"
+
+            }}
+
+          >
+
+
+            <span
+
+              style={{
+
+                width:"10px",
+
+                height:"10px",
+
+                borderRadius:"50%",
+
+                background:item.color
+
+              }}
+
+            />
+
+
+            {item.name}
+
+
+            <b>
+
+              ({item.value})
+
+            </b>
+
+
+
+          </div>
+
+
+        ))
+
+      }
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+  );
+
+};
+
+
+
 
 export default StatisticsPanel;

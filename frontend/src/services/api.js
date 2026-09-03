@@ -60,6 +60,11 @@ export async function getVillages() {
       villageData = [...fallbackVillages];
     }
 
+
+
+
+
+   
     // 2. Enrich with ML Service (AI Summaries, Dominant Factor, Breakdown, Anomalies)
     try {
       const mlRes = await fetch(`${ML_URL}/risk-scores`).catch(() => null);
