@@ -5,7 +5,7 @@
 # ==============================================================================
 
 BASE_DIR="/Users/jenamjain/Desktop/sih-ml-v2"
-PROJECT_DIR="$BASE_DIR/ai-disaster-risk-planner-main/ai-disaster-risk-planner-main"
+PROJECT_DIR="$BASE_DIR/repo_latest"
 JAVA_17_HOME="/opt/homebrew/Cellar/openjdk@17/17.0.17/libexec/openjdk.jdk/Contents/Home"
 
 echo "=================================================================="
