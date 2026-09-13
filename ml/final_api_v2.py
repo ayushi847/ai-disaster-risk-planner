@@ -110,7 +110,9 @@ def load_and_compute():
             "state": row.get("state", ""),
             "lat": float(row.get("latitude", 26.14)),
             "lng": float(row.get("longitude", 91.73)),
-            "hazardType": row.get("hazard_type", "Landslide"),
+            "hazardType": row.get("std_hazard_type", row.get("hazard_type", "Flood")),
+            "hazardDetail": row.get("hazard_detail", row.get("hazard_type", "")),
+            "geoValidationRule": row.get("geo_validation_rule", "Validated"),
             "score": row["score"],
             "riskLevel": risk_level,
             "factors": {
@@ -185,7 +187,7 @@ def get_anomalies():
 def get_realtime_weather(village_id: str):
     """
     Fetches 100% REAL LIVE meteorological satellite & ground sensor telemetry
-    for a specific village by ID (Rainfall mm/h, 24h Rain, Soil Moisture, Temp, IMD Alert Level).
+    for a specific village by ID, with dynamic multi-factor risk score calculation.
     """
     v = next((r for r in RISK_SCORES if r["villageId"] == village_id), None)
     if not v:
@@ -194,22 +196,29 @@ def get_realtime_weather(village_id: str):
     lat = v.get("lat", 26.14)
     lng = v.get("lng", 91.73)
     name = v.get("villageName", "")
-    hazard = v.get("hazardType", "Landslide")
+    hazard = v.get("hazardType", "Flood")
+    district = v.get("district", "")
+    state = v.get("state", "")
+    vuln = v.get("factors", {}).get("populationDensity", 0.5)
+    hist = v.get("factors", {}).get("disasterHistory", 0.6)
 
-    telemetry = fetch_village_live_telemetry(lat, lng, village_id, name, hazard)
+    telemetry = fetch_village_live_telemetry(
+        lat=lat,
+        lng=lng,
+        village_id=village_id,
+        village_name=name,
+        hazard_type=hazard,
+        district=district,
+        state=state,
+        vulnerability_index=vuln,
+        historical_frequency=hist
+    )
     
-    # Calculate live adjusted dynamic risk score
-    base_score = v["score"]
-    delta = telemetry["dynamicRiskDelta"]
-    adjusted_score = min(99.0, max(1.0, round(base_score + delta, 1)))
-
-    adjusted_risk_level = "CRITICAL" if adjusted_score >= 80 else ("HIGH" if adjusted_score >= 60 else ("MEDIUM" if adjusted_score >= 40 else "LOW"))
-
     return {
         **telemetry,
-        "baseRiskScore": base_score,
-        "liveAdjustedRiskScore": adjusted_score,
-        "liveAdjustedRiskLevel": adjusted_risk_level,
+        "baseRiskScore": v["score"],
+        "liveAdjustedRiskScore": telemetry["dynamicRiskScore"],
+        "liveAdjustedRiskLevel": telemetry["dynamicRiskLevel"],
     }
 
 
@@ -218,23 +227,38 @@ from concurrent.futures import ThreadPoolExecutor
 @app.get("/api/live-sensor-feed")
 def get_live_sensor_feed():
     """
-    Fetches real-time telemetry across all 71 habitations concurrently using ThreadPoolExecutor
-    and returns a national early warning sensor snapshot in sub-second time.
+    Fetches real-time telemetry across all habitations concurrently using ThreadPoolExecutor
+    and returns an authentic early warning sensor snapshot.
     """
     def fetch_one(v):
         v_id = v["villageId"]
         lat = v.get("lat", 26.14)
         lng = v.get("lng", 91.73)
         name = v.get("villageName", "")
-        hazard = v.get("hazardType", "Landslide")
-        return fetch_village_live_telemetry(lat, lng, v_id, name, hazard)
+        hazard = v.get("hazardType", "Flood")
+        district = v.get("district", "")
+        state = v.get("state", "")
+        vuln = v.get("factors", {}).get("populationDensity", 0.5)
+        hist = v.get("factors", {}).get("disasterHistory", 0.6)
+
+        return fetch_village_live_telemetry(
+            lat=lat,
+            lng=lng,
+            village_id=v_id,
+            village_name=name,
+            hazard_type=hazard,
+            district=district,
+            state=state,
+            vulnerability_index=vuln,
+            historical_frequency=hist
+        )
 
     with ThreadPoolExecutor(max_workers=20) as executor:
-        feed = list(executor.map(fetch_one, RISK_SCORES))
+        feed = [tel for tel in executor.map(fetch_one, RISK_SCORES) if tel is not None]
 
-    red_alerts = sum(1 for tel in feed if tel.get("imdAlertLevel") == "RED")
-    orange_alerts = sum(1 for tel in feed if tel.get("imdAlertLevel") == "ORANGE")
-    yellow_alerts = sum(1 for tel in feed if tel.get("imdAlertLevel") == "YELLOW")
+    red_alerts = sum(1 for tel in feed if isinstance(tel, dict) and tel.get("imdAlertLevel") == "RED")
+    orange_alerts = sum(1 for tel in feed if isinstance(tel, dict) and tel.get("imdAlertLevel") == "ORANGE")
+    yellow_alerts = sum(1 for tel in feed if isinstance(tel, dict) and tel.get("imdAlertLevel") == "YELLOW")
 
     return {
         "status": "success",
@@ -248,6 +272,35 @@ def get_live_sensor_feed():
             "updatedAt": now_iso()
         },
         "habitations": feed
+    }
+
+
+@app.get("/api/active-alerts")
+def get_active_alerts():
+    """
+    Returns authentic Active Alerts backed by real-time meteorological/hydrological triggers.
+    Filters out calm baseline conditions and eliminates false alarms (e.g. unverified 80+ scores).
+    """
+    # Use live feed to get authentic, trigger-verified active alerts
+    feed_data = get_live_sensor_feed()
+    all_habs = feed_data.get("habitations", [])
+
+    # Strict filtering: Only habitations with active alert levels or threshold-backed elevated risk
+    active = [
+        h for h in all_habs
+        if h.get("imdAlertLevel") in ["RED", "ORANGE", "YELLOW"]
+        or h.get("hasActiveMetAlert") is True
+        or h.get("dynamicRiskScore", 0) >= 55.0
+    ]
+
+    # Sort descending by authentic dynamic risk score
+    active.sort(key=lambda x: x.get("dynamicRiskScore", 0), reverse=True)
+
+    return {
+        "status": "success",
+        "totalActiveAlerts": len(active),
+        "updatedAt": now_iso(),
+        "alerts": active
     }
 
 

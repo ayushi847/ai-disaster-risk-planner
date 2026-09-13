@@ -119,30 +119,76 @@ def priority_from_risk(level: str) -> str:
 
 
 # -------------------------------------------------------------------------
-# COMPUTE RISK SCORES (same formula as final_api.py)
+# COMPUTE RISK SCORES (Geo-Spatial Standardized & Dynamic Multi-Factor)
 # -------------------------------------------------------------------------
+
+from geo_validator import validate_and_classify_hazard, compute_dynamic_risk_score
 
 def compute_risk_scores(habs: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute risk scores and risk levels for all villages.
-    Adds columns: _pop_norm, score, risk_level, confidence
+    Compute risk scores and risk levels for all villages with geo-spatial validation:
+    - Enforces DEM elevation / slope constraints (blocks flatland Landslides)
+    - Reclassifies colliery mining collapses as Ground Subsidence
+    - Applies standardized hazard taxonomy
+    - Applies dynamic formula: (Trigger * 0.5) + (Vuln * 0.3) + (Hist * 0.2)
+    Adds columns: _pop_norm, score, risk_level, confidence, std_hazard_type, hazard_detail, geo_validation_rule
     """
     habs = habs.copy()
     habs["_pop_norm"] = habs["population"] / habs["population"].max()
 
     def _compute(row):
-        hazard = row["hazard_intensity"]
-        pop_norm = row["_pop_norm"]
-        history = row["disaster_history_score"]
-        raw_score = (hazard * 0.5 + pop_norm * 0.3 + history * 0.2) * 100
-        level = ("CRITICAL" if raw_score >= 75 else
-                 "HIGH" if raw_score >= 55 else
-                 "MEDIUM" if raw_score >= 30 else "LOW")
-        spread = max(hazard, pop_norm, history) - min(hazard, pop_norm, history)
-        confidence = round(1.0 - spread * 0.5, 2)
-        return pd.Series({"score": round(raw_score, 1), "risk_level": level, "confidence": confidence})
+        v_id = str(row.get("village_id", ""))
+        v_name = str(row.get("village_name", ""))
+        district = str(row.get("district", ""))
+        state = str(row.get("state", ""))
+        raw_h = str(row.get("hazard_type", "Flood"))
+        lat = float(row.get("latitude", 26.14))
+        lng = float(row.get("longitude", 91.73))
 
-    habs[["score", "risk_level", "confidence"]] = habs.apply(_compute, axis=1)
+        # 1. Geo-Spatial Validation
+        std_hazard, hazard_det, geo_meta = validate_and_classify_hazard(
+            village_id=v_id,
+            village_name=v_name,
+            district=district,
+            state=state,
+            raw_hazard=raw_h,
+            lat=lat,
+            lng=lng
+        )
+
+        # 2. Dynamic multi-factor formula weights
+        # Base trigger: default baseline from hazard intensity without active weather alert
+        hazard_intensity = float(row.get("hazard_intensity", 0.7))
+        pop_norm = float(row.get("_pop_norm", 0.5))
+        history = float(row.get("disaster_history_score", 0.6))
+
+        # Baseline trigger scaled between 0.15 - 0.40 in baseline state
+        base_trigger = min(0.40, hazard_intensity * 0.40)
+
+        # An unverified alert cannot be critical; requires live trigger
+        score, level, breakdown = compute_dynamic_risk_score(
+            realtime_trigger=base_trigger,
+            vulnerability_index=pop_norm,
+            historical_frequency=history,
+            has_active_met_alert=False,
+            hazard_type=std_hazard
+        )
+
+        spread = max(hazard_intensity, pop_norm, history) - min(hazard_intensity, pop_norm, history)
+        confidence = round(1.0 - spread * 0.5, 2)
+
+        return pd.Series({
+            "score": score,
+            "risk_level": level,
+            "confidence": confidence,
+            "std_hazard_type": std_hazard,
+            "hazard_detail": hazard_det,
+            "geo_validation_rule": geo_meta.get("ruleApplied", "")
+        })
+
+    computed_df = habs.apply(_compute, axis=1)
+    for col in computed_df.columns:
+        habs[col] = computed_df[col]
     return habs
 
 
