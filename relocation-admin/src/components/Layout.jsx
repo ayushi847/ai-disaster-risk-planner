@@ -52,7 +52,7 @@ export function Layout() {
               🛡️ NDMA Relocation Governance Portal
             </span>
             <a
-              href="http://localhost:5173"
+              href={import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173"}
               target="_blank"
               rel="noreferrer"
               style={{

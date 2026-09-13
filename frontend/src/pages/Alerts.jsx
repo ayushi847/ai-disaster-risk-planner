@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   getVillages,
   getHazardZones,
+  ML_URL,
 } from "../services/api";
 
 
@@ -61,7 +62,7 @@ const Alerts = () => {
         await Promise.all([
           getVillages(),
           getHazardZones(),
-          fetch("http://localhost:8001/api/live-sensor-feed")
+          fetch(`${ML_URL}/live-sensor-feed`)
             .then((r) => (r.ok ? r.json() : null))
             .catch(() => null),
         ]);

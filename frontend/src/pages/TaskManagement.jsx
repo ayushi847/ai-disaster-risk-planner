@@ -2,6 +2,7 @@
 
 
 import { useEffect, useState } from "react";
+import { BACKEND_URL } from "../services/api";
 
 const TaskManagement = () => {
 
@@ -50,7 +51,7 @@ const TaskManagement = () => {
       try{
 
         const res = await fetch(
-          "http://localhost:8080/api/tasks"
+          `${BACKEND_URL}/api/tasks`
         );
 
         if(res.ok){

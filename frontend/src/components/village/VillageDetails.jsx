@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { relocationSites } from "../../utils/relocationSites";
 import { calculateDistance } from "../../utils/mapHelpers";
 import { generateShelterReasoning } from "../../utils/shelterReasoning";
+import { ML_URL } from "../../services/api";
 
 const VillageDetails = ({
   village,
@@ -36,7 +37,7 @@ const VillageDetails = ({
     });
 
     // Fetch live from ML FastAPI
-    fetch(`http://localhost:8001/api/realtime-weather/${village.id}`)
+    fetch(`${ML_URL}/realtime-weather/${village.id}`)
       .then((r) => r.json())
       .then((data) => {
         if (data && !data.error) {

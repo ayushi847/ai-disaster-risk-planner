@@ -4,7 +4,7 @@ import MapView from "../components/map/MapContainer";
 
 import { villages as initialVillages } from "../utils/villages";
 import { hazards as initialHazards } from "../utils/hazards";
-import { getVillages, getHazardZones } from "../services/api";
+import { getVillages, getHazardZones, ML_URL } from "../services/api";
 
 import SearchBar from "../components/dashboard/SearchBar";
 import SummaryCards from "../components/dashboard/SummaryCards";
@@ -52,7 +52,7 @@ const Dashboard = () => {
   async function fetchSensorFeed() {
     try {
       const sensorRes = await fetch(
-        "http://localhost:8001/api/live-sensor-feed"
+        `${ML_URL}/live-sensor-feed`
       ).catch(() => null);
 
       if (sensorRes && sensorRes.ok) {
