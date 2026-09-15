@@ -48,29 +48,42 @@ const Dashboard = () => {
     loadData();
   }, []);
 
-  // Sensor feed fetcher (extracted for reuse)
+  // Sensor feed fetcher with timeout + retry (prevents "Connecting..." stuck state)
   async function fetchSensorFeed() {
-    try {
-      const sensorRes = await fetch(
-        `${ML_URL}/live-sensor-feed`
-      ).catch(() => null);
+    const maxRetries = 1;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const sensorRes = await fetch(
+          `${ML_URL}/live-sensor-feed`,
+          { signal: controller.signal }
+        ).catch(() => null);
+        clearTimeout(timeoutId);
 
-      if (sensorRes && sensorRes.ok) {
-        const sensorData = await sensorRes.json();
+        if (sensorRes && sensorRes.ok) {
+          const sensorData = await sensorRes.json();
 
-        setLiveAlertsSummary(sensorData.nationalSummary);
-        setLiveSensorFeed(sensorData.habitations || []);
-        setSensorLastUpdated(new Date());
+          setLiveAlertsSummary(sensorData.nationalSummary);
+          setLiveSensorFeed(sensorData.habitations || []);
+          setSensorLastUpdated(new Date());
 
-        const map = {};
-        sensorData.habitations?.forEach((h) => {
-          map[h.villageId] = h;
-        });
-        setLiveAlertsMap(map);
+          const map = {};
+          sensorData.habitations?.forEach((h) => {
+            map[h.villageId] = h;
+          });
+          setLiveAlertsMap(map);
+          return; // Success — exit
+        }
+      } catch (err) {
+        console.warn(`Sensor feed attempt ${attempt + 1} failed:`, err);
       }
-    } catch (err) {
-      console.warn("Sensor feed fetch error:", err);
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 800));
+      }
     }
+    // All retries failed — DON'T clear existing sensor state (keep last known data)
+    console.warn("Sensor feed unavailable after retries, keeping last known state");
   }
 
   // Auto-refresh sensor feed every 60 seconds
@@ -91,48 +104,71 @@ const Dashboard = () => {
     setTimeout(() => setSelectedVillage(null), 350);
   }, []);
 
-  // Generate dynamic radar text from live sensor feed
+  // Generate dynamic radar text from live sensor feed OR village fallback data
   const radarText = useMemo(() => {
-    if (!liveSensorFeed || liveSensorFeed.length === 0) return null;
-
-    const stateMap = {};
-    liveSensorFeed.forEach((h) => {
-      const state = h.state || "India";
-      const alertPriority = { RED: 4, ORANGE: 3, YELLOW: 2, GREEN: 1 };
-      const alertLevel = h.imdAlertLevel || "GREEN";
-      const priority = alertPriority[alertLevel] || 0;
-
-      if (!stateMap[state] || priority > (alertPriority[stateMap[state].imdAlertLevel] || 0)) {
-        stateMap[state] = h;
-      }
-    });
-
-    const activeEntries = Object.entries(stateMap)
-      .map(([state, h]) => {
+    // If live sensor feed is available, use it
+    if (liveSensorFeed && liveSensorFeed.length > 0) {
+      const stateMap = {};
+      liveSensorFeed.forEach((h) => {
+        const state = h.state || "India";
+        const alertPriority = { RED: 4, ORANGE: 3, YELLOW: 2, GREEN: 1 };
         const alertLevel = h.imdAlertLevel || "GREEN";
-        const soil = h.soilSaturationPercent ? `Soil ${h.soilSaturationPercent}%` : null;
-        const rain24 = h.rainfall24hMm && h.rainfall24hMm > 0 ? `Rain ${h.rainfall24hMm}mm` : null;
-        const wind = h.windSpeedKmh && h.windSpeedKmh > 12 ? `Wind ${h.windSpeedKmh}km/h` : null;
+        const priority = alertPriority[alertLevel] || 0;
 
-        const metrics = [rain24, soil, wind].filter(Boolean).slice(0, 2).join(", ");
+        if (!stateMap[state] || priority > (alertPriority[stateMap[state].imdAlertLevel] || 0)) {
+          stateMap[state] = h;
+        }
+      });
 
-        return {
-          state,
-          alertLevel,
-          text: `${state} [${alertLevel}] (${h.hazardType || "Hazard"}: ${metrics || "Active Telemetry"})`,
-          priority: { RED: 4, ORANGE: 3, YELLOW: 2, GREEN: 1 }[alertLevel] || 0,
-        };
-      })
-      .filter((e) => e.priority > 1)
-      .sort((a, b) => b.priority - a.priority)
-      .slice(0, 5);
+      const activeEntries = Object.entries(stateMap)
+        .map(([state, h]) => {
+          const alertLevel = h.imdAlertLevel || "GREEN";
+          const soil = h.soilSaturationPercent ? `Soil ${h.soilSaturationPercent}%` : null;
+          const rain24 = h.rainfall24hMm && h.rainfall24hMm > 0 ? `Rain ${h.rainfall24hMm}mm` : null;
+          const wind = h.windSpeedKmh && h.windSpeedKmh > 12 ? `Wind ${h.windSpeedKmh}km/h` : null;
 
-    if (activeEntries.length === 0) {
-      return "All monitored regions reporting baseline normal conditions.";
+          const metrics = [rain24, soil, wind].filter(Boolean).slice(0, 2).join(", ");
+
+          return {
+            state,
+            alertLevel,
+            text: `${state} [${alertLevel}] (${h.hazardType || "Hazard"}: ${metrics || "Active Telemetry"})`,
+            priority: { RED: 4, ORANGE: 3, YELLOW: 2, GREEN: 1 }[alertLevel] || 0,
+          };
+        })
+        .filter((e) => e.priority > 1)
+        .sort((a, b) => b.priority - a.priority)
+        .slice(0, 5);
+
+      if (activeEntries.length === 0) {
+        return "All monitored regions reporting baseline normal conditions.";
+      }
+
+      return activeEntries.map((e) => e.text).join("  •  ");
     }
 
-    return activeEntries.map((e) => e.text).join("  •  ");
-  }, [liveSensorFeed]);
+    // FALLBACK: Generate radar from village risk data when sensor feed is unavailable
+    if (villagesList && villagesList.length > 0) {
+      const criticalVillages = villagesList
+        .filter(v => v.riskLevel === "CRITICAL" || v.riskLevel === "HIGH")
+        .sort((a, b) => (b.riskScore || 0) - (a.riskScore || 0))
+        .slice(0, 5);
+
+      if (criticalVillages.length > 0) {
+        const radarItems = criticalVillages.map(v => {
+          const state = v.state || "India";
+          const hazard = v.hazardType || "Multi-hazard";
+          const score = v.riskScore ? `Risk ${v.riskScore.toFixed(0)}%` : "";
+          return `${state} [${v.riskLevel}] (${hazard}: ${v.name}${score ? `, ${score}` : ""})`;
+        });
+        return radarItems.join("  •  ");
+      }
+
+      return `Monitoring ${villagesList.length} habitations across ${new Set(villagesList.map(v => v.state)).size} states — baseline scan active.`;
+    }
+
+    return "Initializing satellite mesh sensor network...";
+  }, [liveSensorFeed, villagesList]);
 
   // Counts by standardized disaster category
   const totalCount = villagesList.length;
