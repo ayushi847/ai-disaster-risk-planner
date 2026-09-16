@@ -50,10 +50,7 @@ const NAV_SECTIONS = [
   },
 ];
 
-const Sidebar = ({
-  // emergency helpline (dynamic so backend can update it)
-  helpline = { number: "112", label: "National Emergency Number", status: "24x7 Active" },
-}) => {
+const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -82,142 +79,36 @@ const Sidebar = ({
         </button>
       </div>
 
-        {/* Dynamic Emergency Helpline */}
-{!collapsed && (
-  <a
-    href={`tel:${helpline.number}`}
-    style={{
-      margin: "0 16px 16px",
-      padding: "16px",
-      background:
-        "linear-gradient(135deg,#0f172a,#1e293b)",
-      borderRadius: "14px",
-      color: "#fff",
-      textDecoration: "none",
-      display: "block",
-      cursor: "pointer",
-      transition: "0.25s",
-      border: "1px solid rgba(255,255,255,0.08)",
-      boxShadow:
-        "0 8px 20px rgba(0,0,0,0.15)",
-    }}
-
-    onMouseEnter={(e)=>{
-      e.currentTarget.style.transform="translateY(-3px)";
-    }}
-
-    onMouseLeave={(e)=>{
-      e.currentTarget.style.transform="translateY(0)";
-    }}
-  >
-
-
-    <div
-      style={{
-        display:"flex",
-        justifyContent:"space-between",
-        alignItems:"center",
-        marginBottom:"8px"
-      }}
-    >
-
-      <div
-        style={{
-          display:"flex",
-          alignItems:"center",
-          gap:"8px"
-        }}
-      >
-
-        <div
+      {/* SOS Button */}
+      <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 16px" }}>
+        <a
+          href="tel:112"
+          title="Call 112 — Emergency Services"
           style={{
-            width:"30px",
-            height:"30px",
-            borderRadius:"50%",
-            background:"#dc2626",
-            display:"flex",
-            alignItems:"center",
-            justifyContent:"center"
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            width: collapsed ? "52px" : "110px",
+            height: collapsed ? "52px" : "110px",
+            borderRadius: "50%",
+            backgroundColor: "#dc2626",
+            border: "3px solid #991b1b",
+            color: "#ffffff",
+            textDecoration: "none",
+            cursor: "pointer",
+            transition: "transform 0.15s, background-color 0.15s",
+            flexShrink: 0,
           }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#b91c1c"; e.currentTarget.style.transform = "scale(1.06)"; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = "#dc2626"; e.currentTarget.style.transform = "scale(1)"; }}
         >
-          <Icon 
-            path={icons.phone}
-            size={15}
-          />
-        </div>
-
-
-        <span
-          style={{
-            fontSize:"13px",
-            color:"#cbd5e1",
-            fontWeight:"600"
-          }}
-        >
-          Emergency Helpline
-        </span>
-
+          <span style={{ fontSize: collapsed ? "14px" : "24px", fontWeight: "800", letterSpacing: "0.05em", lineHeight: 1 }}>SOS</span>
+          {!collapsed && (
+            <span style={{ fontSize: "13px", fontWeight: "600", marginTop: "4px", opacity: 0.85 }}>112</span>
+          )}
+        </a>
       </div>
-
-
-      <span
-        style={{
-          background:"#16a34a",
-          color:"#dcfce7",
-          padding:"3px 8px",
-          borderRadius:"20px",
-          fontSize:"10px",
-          fontWeight:"700"
-        }}
-      >
-        ● ACTIVE
-      </span>
-
-
-    </div>
-
-
-
-    <div
-      style={{
-        fontSize:"28px",
-        fontWeight:"800",
-        letterSpacing:"1px"
-      }}
-    >
-      {helpline.number}
-    </div>
-
-
-
-    <div
-      style={{
-        marginTop:"5px",
-        fontSize:"12px",
-        color:"#94a3b8"
-      }}
-    >
-      {helpline.label}
-    </div>
-
-
-    <div
-      style={{
-        marginTop:"10px",
-        background:"#dc2626",
-        padding:"7px",
-        borderRadius:"8px",
-        textAlign:"center",
-        fontSize:"12px",
-        fontWeight:"700"
-      }}
-    >
-      📞 Call Emergency Services
-    </div>
-
-
-  </a>
-)}
 
       {/* Navigation */}
       <nav style={{ padding: "0 12px", overflowY: "auto", flex: 1 }}>

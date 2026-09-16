@@ -10,7 +10,7 @@ const DashboardLayout = () => {
       <div
         style={{
           display: "flex",
-          height: "calc(100vh - 72px)",
+          height: "calc(100vh - 52px)",
           background: "#f1f5f9",
           overflow: "hidden",
         }}
