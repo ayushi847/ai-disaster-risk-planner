@@ -4,6 +4,8 @@
 
 
 import { useEffect, useMemo, useState } from "react";
+import { villages as initialVillages } from "../utils/villages";
+import { hazards as initialHazards } from "../utils/hazards";
 
 import {
   getVillages,
@@ -39,13 +41,13 @@ const Alerts = () => {
     }
   `;
 
-  const [villages, setVillages] = useState([]);
-  const [hazards, setHazards] = useState([]);
+  const [villages, setVillages] = useState(initialVillages || []);
+  const [hazards, setHazards] = useState(initialHazards || []);
   const [liveSensorMap, setLiveSensorMap] = useState({});
 
   const [filter, setFilter] = useState("ALL");
-  const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
 
 
   // =====================================================
@@ -58,22 +60,29 @@ const Alerts = () => {
 
       setLoading(true);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
       const [villageData, hazardData, sensorFeedRes] =
         await Promise.all([
           getVillages(),
           getHazardZones(),
-          fetch(`${ML_URL}/live-sensor-feed`)
+          fetch(`${ML_URL}/live-sensor-feed`, { signal: controller.signal })
             .then((r) => (r.ok ? r.json() : null))
             .catch(() => null),
         ]);
+      clearTimeout(timeoutId);
 
-
-      if (Array.isArray(villageData)) {
+      if (Array.isArray(villageData) && villageData.length > 0) {
         setVillages(villageData);
+      } else if (!villages || villages.length === 0) {
+        setVillages(initialVillages);
       }
 
-      if (Array.isArray(hazardData)) {
+      if (Array.isArray(hazardData) && hazardData.length > 0) {
         setHazards(hazardData);
+      } else if (!hazards || hazards.length === 0) {
+        setHazards(initialHazards);
       }
 
       if (sensorFeedRes && Array.isArray(sensorFeedRes.habitations)) {
@@ -225,6 +234,7 @@ const Alerts = () => {
   const alerts = useMemo(() => {
 
     const generated = [];
+    const alreadyAlerted = new Set();
 
     villages.forEach((village, index) => {
 
@@ -270,6 +280,7 @@ const Alerts = () => {
           action: "Immediate tactical evacuation and shelter readiness required. Active threshold breached.",
           time: new Date(),
         });
+        alreadyAlerted.add(village.id);
 
       }
 
@@ -296,6 +307,7 @@ const Alerts = () => {
           action: "Activate relocation contingency and verify nearby shelter capacity.",
           time: new Date(),
         });
+        alreadyAlerted.add(village.id);
 
       }
 
@@ -322,7 +334,63 @@ const Alerts = () => {
           action: "Maintain continuous sensor mesh observation and review drainage/slope telemetry.",
           time: new Date(),
         });
+        alreadyAlerted.add(village.id);
 
+      }
+
+      // 4. STRUCTURAL/HISTORICAL RISK WATCH (No weather trigger needed)
+      // Villages with CRITICAL or HIGH static ML risk level that didn't trigger above weather conditions
+      else if (
+        (getRisk(village) === "CRITICAL" || getRisk(village) === "HIGH") &&
+        !alreadyAlerted.has(village.id)
+      ) {
+        const staticScore = getScore(village);
+        const riskLvl = getRisk(village);
+        const alertType = riskLvl === "CRITICAL" ? "URGENT" : "HIGH";
+        const icon = riskLvl === "CRITICAL" ? "🔶" : "🟡";
+
+        generated.push({
+          id: `structural-${village.id ?? index}`,
+          type: alertType,
+          title: `${icon} ${hazard} — Structural Risk Alert`,
+          message: `${villageName} in ${district} has a ${riskLvl} baseline risk (score: ${staticScore.toFixed(1)}) based on geomorphic assessment, historical disaster patterns, and population vulnerability.`,
+          village: villageName,
+          district,
+          hazard,
+          score: staticScore,
+          population,
+          telemetry: tel,
+          action: riskLvl === "CRITICAL" 
+            ? "Priority relocation assessment required. Verify structural safety and maintain evacuation readiness."
+            : "Enhanced monitoring recommended. Review drainage infrastructure and slope stability reports.",
+          time: new Date(),
+        });
+        alreadyAlerted.add(village.id);
+      }
+
+      // 5. ANOMALY DETECTION ALERTS
+      // IsolationForest-flagged villages that haven't been alerted yet
+      if (
+        village.isAnomaly &&
+        !alreadyAlerted.has(village.id)
+      ) {
+        generated.push({
+          id: `anomaly-${village.id ?? index}`,
+          type: "HIGH",
+          title: `⚠️ Statistical Anomaly — ${hazard}`,
+          message: village.anomalyReason
+            ? `${villageName} in ${district}: ${village.anomalyReason}`
+            : `${villageName} in ${district} flagged by IsolationForest anomaly detection. Risk pattern deviates from expected baseline.`,
+          village: villageName,
+          district,
+          hazard,
+          score: getScore(village),
+          population,
+          telemetry: tel,
+          action: "Investigate data anomaly. Cross-reference with field conditions and verify sensor accuracy.",
+          time: new Date(),
+        });
+        alreadyAlerted.add(village.id);
       }
 
     });
@@ -409,6 +477,42 @@ const Alerts = () => {
 
     });
 
+
+    // =================================================
+    // MINIMUM ALERTS GUARANTEE
+    // If no weather/structural alerts exist, show top
+    // risk villages as "WATCH" monitoring entries so the 
+    // page never appears empty.
+    // =================================================
+    if (generated.length === 0 && villages.length > 0) {
+      const topRiskVillages = [...villages]
+        .sort((a, b) => getScore(b) - getScore(a))
+        .slice(0, 15);
+
+      topRiskVillages.forEach((village, index) => {
+        const villageName = getName(village);
+        const district = getDistrict(village);
+        const hazard = getHazard(village);
+        const score = getScore(village);
+        const population = getPopulation(village);
+        const riskLvl = getRisk(village);
+
+        generated.push({
+          id: `watch-${village.id ?? index}`,
+          type: "HIGH",
+          title: `📡 ${hazard} — Continuous Surveillance`,
+          message: `${villageName} in ${district} is under active risk monitoring. Current ML risk assessment: ${riskLvl} (${score.toFixed(1)}). Population at risk: ${population.toLocaleString()}.`,
+          village: villageName,
+          district,
+          hazard,
+          score,
+          population,
+          telemetry: liveSensorMap[village.id] || null,
+          action: "Continue routine disaster preparedness monitoring. Review quarterly risk assessment updates.",
+          time: new Date(),
+        });
+      });
+    }
 
     return generated.sort(
       (a, b) =>
