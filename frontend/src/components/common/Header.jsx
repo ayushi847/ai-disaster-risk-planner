@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { villages as fallbackVillages } from "../../utils/villages";
-import { getVillages } from "../../services/api";
+import { getVillages, ADMIN_URL } from "../../services/api";
 
 const Header = () => {
   const [totalHabitations, setTotalHabitations] = useState(fallbackVillages.length);
@@ -109,7 +109,7 @@ const Header = () => {
         {/* Authority Portal */}
         <div style={{ display: "flex", alignItems: "center", padding: "0 20px", height: "56px", borderLeft: "1px solid #e2e8f0" }}>
           <a
-            href={import.meta.env.VITE_ADMIN_URL || "http://localhost:5174"}
+            href={ADMIN_URL}
             target="_blank"
             rel="noreferrer"
             style={{
