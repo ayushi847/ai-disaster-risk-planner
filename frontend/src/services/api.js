@@ -53,13 +53,16 @@ export async function getVillages() {
       villageData = rawList.map(v => {
         const fb = fallbackMap[v.id] || {};
         const coords = v.geometry?.coordinates || [];
-        // Curated CRITICAL classifications are ground truth and must remain CRITICAL
+        // Curated CRITICAL and HIGH classifications are ground truth and must be preserved
         const isCrit = (v.riskLevel === "CRITICAL" || fb.riskLevel === "CRITICAL");
-        const riskLevel = isCrit ? "CRITICAL" : (v.riskLevel || fb.riskLevel || "MEDIUM");
+        const isHigh = (v.riskLevel === "HIGH" || fb.riskLevel === "HIGH");
+        const riskLevel = isCrit ? "CRITICAL" : isHigh ? "HIGH" : (v.riskLevel || fb.riskLevel || "MEDIUM");
         const priority = (v.priorityLevel === "IMMEDIATE" || fb.priority === "IMMEDIATE" || isCrit)
           ? "IMMEDIATE"
           : (v.priorityLevel || fb.priority || "SHORT_TERM");
-        const riskScore = (v.riskScore !== null && v.riskScore !== undefined && v.riskScore > 0) 
+        const riskScore = isCrit
+          ? Math.max(fb.riskScore || 78.5, v.riskScore || 78.5)
+          : (v.riskScore !== null && v.riskScore !== undefined && v.riskScore > 0) 
           ? v.riskScore 
           : (fb.riskScore || 50.0);
 
@@ -109,19 +112,29 @@ export async function getVillages() {
         villageData = villageData.map(v => {
           const ml = mlMap[v.id];
           const fb = fallbackMap[v.id] || {};
-          // Preserve authoritative curated/backend riskLevel (CRITICAL habitations must stay CRITICAL)
+          // Preserve authoritative curated/backend riskLevel (CRITICAL and HIGH habitations must stay preserved)
           const isCritical = (v.riskLevel === "CRITICAL" || fb.riskLevel === "CRITICAL" || ml?.riskLevel === "CRITICAL");
+          const isHigh = (v.riskLevel === "HIGH" || fb.riskLevel === "HIGH" || ml?.riskLevel === "HIGH");
           const resolvedRiskLevel = isCritical
             ? "CRITICAL"
+            : isHigh
+            ? "HIGH"
             : (v.riskLevel || ml?.riskLevel || fb.riskLevel || "MEDIUM");
           const resolvedPriority = (v.priority === "IMMEDIATE" || fb.priority === "IMMEDIATE" || isCritical)
             ? "IMMEDIATE"
             : (v.priority || fb.priority || "SHORT_TERM");
 
+          // Ensure authentic risk score: For CRITICAL habitations, score must be authentic (>= 78.5, never demoted to baseline 63.9)
+          const resolvedRiskScore = isCritical
+            ? Math.max(fb.riskScore || 78.5, v.riskScore || 78.5, (typeof ml?.score === "number" && ml.score >= 75) ? ml.score : 0)
+            : (typeof ml?.score === "number" && ml.score > 0)
+            ? ml.score
+            : (v.riskScore || fb.riskScore || 50.0);
+
           if (ml) {
             return {
               ...v,
-              riskScore: (typeof ml.score === "number" && ml.score > 0) ? ml.score : v.riskScore,
+              riskScore: resolvedRiskScore,
               riskLevel: resolvedRiskLevel,
               priority: resolvedPriority,
               hazardType: ml.hazardType || v.hazardType,
@@ -137,6 +150,7 @@ export async function getVillages() {
           }
           return {
             ...v,
+            riskScore: resolvedRiskScore,
             riskLevel: resolvedRiskLevel,
             priority: resolvedPriority,
           };
