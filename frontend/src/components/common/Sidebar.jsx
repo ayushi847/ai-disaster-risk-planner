@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { ADMIN_URL } from "../../services/api";
 
 // ---- Simple inline icons (no external icon lib dependency) ----
 const Icon = ({ path, size = 18 }) => (
@@ -157,6 +158,63 @@ const Sidebar = () => {
             ))}
           </div>
         ))}
+
+        {/* Authority Portal Link */}
+        <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #e2e8f0", paddingBottom: "16px" }}>
+          {!collapsed && (
+            <div
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                color: "#94a3b8",
+                letterSpacing: "0.05em",
+                padding: "0 12px",
+                marginBottom: "6px",
+              }}
+            >
+              ADMINISTRATION
+            </div>
+          )}
+          <a
+            href={ADMIN_URL}
+            target="_blank"
+            rel="noreferrer"
+            title={collapsed ? "Authority Portal" : undefined}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              width: "100%",
+              padding: "9px 12px",
+              borderRadius: "8px",
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              color: "#1d4ed8",
+              fontWeight: 600,
+              fontSize: "13.5px",
+              cursor: "pointer",
+              textDecoration: "none",
+              boxSizing: "border-box",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#dbeafe";
+              e.currentTarget.style.borderColor = "#93c5fd";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#eff6ff";
+              e.currentTarget.style.borderColor = "#bfdbfe";
+            }}
+          >
+            <span style={{ fontSize: "16px" }}>🏛️</span>
+            {!collapsed && (
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                <span>Authority Portal</span>
+                <span style={{ fontSize: "11px", color: "#60a5fa" }}>↗</span>
+              </span>
+            )}
+          </a>
+        </div>
       </nav>
     </div>
   );

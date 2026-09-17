@@ -4,6 +4,7 @@ import { relocationSites as fallbackSites } from "../utils/relocationSites";
 
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 export const ML_URL = import.meta.env.VITE_ML_URL || (import.meta.env.VITE_ML_BASE_URL ? `${import.meta.env.VITE_ML_BASE_URL}/api` : "http://localhost:8001/api");
+export const ADMIN_URL = import.meta.env.VITE_ADMIN_URL || "http://localhost:5174";
 
 // Lookup map for static curated hazard metadata
 const fallbackMap = {};

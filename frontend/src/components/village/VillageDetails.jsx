@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { relocationSites } from "../../utils/relocationSites";
 import { calculateDistance } from "../../utils/mapHelpers";
 import { generateShelterReasoning } from "../../utils/shelterReasoning";
-import { ML_URL } from "../../services/api";
+import { ML_URL, ADMIN_URL } from "../../services/api";
 import AuthorityHelplinePanel from "../common/AuthorityHelplinePanel";
 
 const VillageDetails = ({
@@ -654,6 +654,67 @@ const VillageDetails = ({
         theme="light"
         maxItems={3}
       />
+
+      {/* AUTHORITY DECISION PORTAL LINK */}
+      <div
+        style={{
+          marginTop: "10px",
+          padding: "10px 12px",
+          background: "#eff6ff",
+          border: "1px solid #bfdbfe",
+          borderRadius: "8px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}
+      >
+        <div style={{ flex: "1 1 180px" }}>
+          <div
+            style={{
+              fontSize: "11.5px",
+              fontWeight: "700",
+              color: "#1e40af",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+            }}
+          >
+            <span>🏛️</span>
+            <span>Authority Action Panel</span>
+          </div>
+          <div style={{ fontSize: "10.5px", color: "#3b82f6", marginTop: "2px" }}>
+            Official review, shelter directives & audit logs
+          </div>
+        </div>
+
+        <a
+          href={`${ADMIN_URL}/decisions`}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            background: "#1d4ed8",
+            color: "#ffffff",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            fontSize: "11px",
+            fontWeight: "700",
+            textDecoration: "none",
+            boxShadow: "0 2px 4px rgba(29, 78, 216, 0.25)",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2563eb")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1d4ed8")}
+        >
+          <span>Open Authority Panel</span>
+          <span style={{ fontSize: "11px" }}>↗</span>
+        </a>
+      </div>
     </div>
   );
 };
