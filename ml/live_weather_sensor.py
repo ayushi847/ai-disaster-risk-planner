@@ -19,6 +19,7 @@ from typing import Dict, Any, Optional
 from geo_validator import (
     validate_and_classify_hazard,
     compute_dynamic_risk_score,
+    compute_estimated_time_to_impact,
     ALLOWED_HAZARD_TYPES
 )
 
@@ -215,6 +216,22 @@ def fetch_village_live_telemetry(
                 hazard_type=std_hazard
             )
 
+            # -------------------------------------------------------------
+            # 4. COMPUTE ESTIMATED TIME-TO-IMPACT (ETI) / LEAD TIME HORIZON
+            # -------------------------------------------------------------
+            eti = compute_estimated_time_to_impact(
+                hazard_type=std_hazard,
+                dynamic_risk_score=dynamic_score,
+                realtime_trigger=rt_trigger,
+                precip_current=precip,
+                precip_24h=precip_24h,
+                soil_saturation_pct=soil_sat_pct,
+                wind_speed_kmh=wind,
+                temp_c=temp,
+                imd_alert_level=alert_level,
+                has_active_met_alert=has_active_met_alert
+            )
+
             telemetry = {
                 "villageId": village_id,
                 "villageName": village_name,
@@ -241,6 +258,7 @@ def fetch_village_live_telemetry(
                 "dynamicRiskScore": dynamic_score,
                 "dynamicRiskLevel": dynamic_level,
                 "scoreBreakdown": formula_breakdown,
+                "estimatedTimeToImpact": eti,
                 "sensorNetwork": "IMD-NCMRWF Doppler & ECMWF Satellite Mesh (Live)",
                 "telemetryTimestamp": curr.get("time", time.strftime("%Y-%m-%dT%H:%M:%S")),
                 "isLive": True
@@ -257,6 +275,18 @@ def fetch_village_live_telemetry(
             historical_frequency=historical_frequency,
             has_active_met_alert=False,
             hazard_type=std_hazard
+        )
+        eti_fallback = compute_estimated_time_to_impact(
+            hazard_type=std_hazard,
+            dynamic_risk_score=dynamic_score,
+            realtime_trigger=0.15,
+            precip_current=0.0,
+            precip_24h=2.5,
+            soil_saturation_pct=53,
+            wind_speed_kmh=10.5,
+            temp_c=23.5,
+            imd_alert_level="GREEN",
+            has_active_met_alert=False
         )
         return {
             "villageId": village_id,
@@ -284,6 +314,7 @@ def fetch_village_live_telemetry(
             "dynamicRiskScore": dynamic_score,
             "dynamicRiskLevel": dynamic_level,
             "scoreBreakdown": formula_breakdown,
+            "estimatedTimeToImpact": eti_fallback,
             "sensorNetwork": "IMD-NCMRWF Doppler & ECMWF Satellite Mesh",
             "telemetryTimestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
             "isLive": False

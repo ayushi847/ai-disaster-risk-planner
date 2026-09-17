@@ -269,3 +269,220 @@ def compute_dynamic_risk_score(
     }
 
     return score, level, breakdown
+
+
+def compute_estimated_time_to_impact(
+    hazard_type: str,
+    dynamic_risk_score: float,
+    realtime_trigger: float,
+    precip_current: float = 0.0,
+    precip_24h: float = 0.0,
+    soil_saturation_pct: int = 50,
+    wind_speed_kmh: float = 10.0,
+    temp_c: float = 25.0,
+    imd_alert_level: str = "GREEN",
+    has_active_met_alert: bool = False
+) -> Dict[str, Any]:
+    """
+    Computes Estimated Time-to-Impact (ETI) / Lead Time Window based on physical
+    hydro-meteorological thresholds and prevailing circumstances.
+    
+    Estimates when the peak impact / breach will materialize if current environmental
+    and meteorological circumstances persist or escalate.
+    """
+    hazard = str(hazard_type or "Flood").strip()
+    score = float(dynamic_risk_score or 50.0)
+    rt = float(realtime_trigger or 0.1)
+    p_curr = float(precip_current or 0.0)
+    p_24h = float(precip_24h or 0.0)
+    soil_sat = int(soil_saturation_pct or 50)
+    wind = float(wind_speed_kmh or 10.0)
+    temp = float(temp_c or 25.0)
+    alert = str(imd_alert_level or "GREEN").upper()
+
+    # Default baseline
+    h_min, h_max = 48, 72
+    time_window = "48+ Hours"
+    urgency = "BASELINE_STABLE"
+    lead_cat = "SAFE_BASELINE (48h+)"
+    condition_ctx = "Environmental and sensor parameters within safe seasonal baseline."
+    summary = "No immediate disaster impact expected within standard 48-hour monitoring horizon."
+    action = "Continue regular sensor surveillance and maintain standard contingency readiness."
+
+    # 1. FLASH FLOOD
+    if hazard in ["Flash Flood"]:
+        if p_curr >= 15.0 or p_24h >= 65.0 or alert == "RED" or (score >= 75.0 and has_active_met_alert):
+            h_min, h_max = 2, 4
+            time_window = "2 – 4 Hours"
+            urgency = "IMMINENT_CRITICAL"
+            lead_cat = "CRITICAL_WINDOW (<4h)"
+            condition_ctx = f"Torrential downpour ({p_curr}mm/hr) & 24h catchment deluge ({p_24h}mm) exceeding rapid runoff thresholds."
+            summary = "Severe flash inundation impact expected within 2–4 hours if torrential rainfall persists."
+            action = "Execute immediate tactical evacuation along elevated corridors; move all residents to high ground immediately."
+        elif p_curr >= 5.0 or p_24h >= 30.0 or alert == "ORANGE" or score >= 55.0:
+            h_min, h_max = 6, 12
+            time_window = "6 – 12 Hours"
+            urgency = "HIGH_CONVERGENCE"
+            lead_cat = "ELEVATED_WINDOW (6-12h)"
+            condition_ctx = f"Heavy catchment rainfall ({p_24h}mm/24h) driving accelerated stream surge and gorge runoff."
+            summary = "Stream cresting and low-lying flash surge impact anticipated within 6–12 hours under sustained rain."
+            action = "Mobilize NDRF/SDRF swift-water teams and issue mandatory low-ground clearing orders."
+        else:
+            h_min, h_max = 24, 48
+            time_window = "24 – 48 Hours"
+            urgency = "DEVELOPING_WATCH"
+            lead_cat = "EXTENDED_WATCH (24-48h)"
+            condition_ctx = "Moderate rainfall within manageable mountain drainage capacity."
+            summary = "No acute flash flooding expected within 24 hours under current precipitation."
+            action = "Maintain continuous radar/gauging observation."
+
+    # 2. RIVERINE FLOOD
+    elif hazard in ["Flood"]:
+        if p_24h >= 65.0 or alert == "RED" or (score >= 75.0 and has_active_met_alert):
+            h_min, h_max = 6, 12
+            time_window = "6 – 12 Hours"
+            urgency = "IMMINENT_CRITICAL"
+            lead_cat = "CRITICAL_WINDOW (<12h)"
+            condition_ctx = f"Severe 24h rainfall ({p_24h}mm) pushing river stage to danger embankment breach level."
+            summary = "River embankment breach and habitation inundation expected within 6–12 hours if inflow persists."
+            action = "Trigger priority shelter transit; verify all Hungarian evacuation corridors are clear of flood choke points."
+        elif p_24h >= 30.0 or alert == "ORANGE" or score >= 55.0:
+            h_min, h_max = 18, 24
+            time_window = "18 – 24 Hours"
+            urgency = "HIGH_CONVERGENCE"
+            lead_cat = "ELEVATED_WINDOW (18-24h)"
+            condition_ctx = f"Rising river hydrograph and upstream catchment runoff surge ({p_24h}mm/24h)."
+            summary = "Major floodplain inundation threat anticipated within 18–24 hours as upstream flood wave arrives."
+            action = "Pre-position emergency flood rations and notify designated shelter wardens."
+        elif p_24h >= 10.0 or alert == "YELLOW" or score >= 35.0:
+            h_min, h_max = 36, 48
+            time_window = "36 – 48 Hours"
+            urgency = "MODERATE_WATCH"
+            lead_cat = "EXTENDED_WATCH (36-48h)"
+            condition_ctx = "Elevated drainage inflow; river stage below warning mark."
+            summary = "Drainage congestion watch; potential impact in 36–48 hours if upstream precipitation continues."
+            action = "Monitor CWC river gauge hydrographs twice daily."
+
+    # 3. LANDSLIDE
+    elif hazard in ["Landslide"]:
+        if soil_sat >= 85 and (p_curr >= 5.0 or p_24h >= 25.0 or alert == "RED" or (score >= 75.0 and has_active_met_alert)):
+            h_min, h_max = 3, 6
+            time_window = "3 – 6 Hours"
+            urgency = "IMMINENT_CRITICAL"
+            lead_cat = "CRITICAL_WINDOW (<6h)"
+            condition_ctx = f"Critical soil pore saturation ({soil_sat}%) with active rain ({p_24h}mm) breaching slope shear resistance."
+            summary = "Catastrophic slope failure or debris flow impact expected within 3–6 hours if pore pressure persists."
+            action = "Immediate hillside evacuation; clear all homes within 100m slope runout zone."
+        elif soil_sat >= 75 or p_24h >= 20.0 or alert == "ORANGE" or score >= 55.0:
+            h_min, h_max = 12, 18
+            time_window = "12 – 18 Hours"
+            urgency = "HIGH_CONVERGENCE"
+            lead_cat = "ELEVATED_WINDOW (12-18h)"
+            condition_ctx = f"High subsurface moisture loading ({soil_sat}% saturation) weakening hillside cohesion."
+            summary = "Significant slope instability impact anticipated within 12–18 hours if rain continues to saturate slope."
+            action = "Suspend mountain road transit and inspect scarp tension cracks."
+        elif soil_sat >= 65 or alert == "YELLOW" or score >= 35.0:
+            h_min, h_max = 24, 48
+            time_window = "24 – 48 Hours"
+            urgency = "MODERATE_WATCH"
+            lead_cat = "EXTENDED_WATCH (24-48h)"
+            condition_ctx = f"Elevated soil moisture ({soil_sat}%); progressive pore-water buildup."
+            summary = "Slope deformation watch; potential movement in 24–48 hours upon additional rainfall."
+            action = "Maintain regular inclinometer and visual slope surveillance."
+
+    # 4. CYCLONE / STORM SURGE
+    elif hazard in ["Cyclone", "Storm Surge"]:
+        if wind >= 65.0 or alert == "RED" or (score >= 75.0 and has_active_met_alert):
+            h_min, h_max = 3, 6
+            time_window = "3 – 6 Hours"
+            urgency = "IMMINENT_CRITICAL"
+            lead_cat = "CRITICAL_WINDOW (<6h)"
+            condition_ctx = f"Gale-force cyclonic winds ({wind}km/h) converging with astronomical high tide surge."
+            summary = "Destructive coastal landfall and storm surge inundation expected within 3–6 hours on current trajectory."
+            action = "Total coastal strip evacuation to cyclone multi-purpose shelters immediately."
+        elif wind >= 45.0 or alert == "ORANGE" or score >= 55.0:
+            h_min, h_max = 12, 18
+            time_window = "12 – 18 Hours"
+            urgency = "HIGH_CONVERGENCE"
+            lead_cat = "ELEVATED_WINDOW (12-18h)"
+            condition_ctx = f"Approaching tropical cyclone eyewall and heavy squall bands ({wind}km/h winds)."
+            summary = "Severe storm force winds and coastal surge impact estimated within 12–18 hours."
+            action = "Secure power infrastructure and move fishing vessels and livestock inland."
+        elif wind >= 28.0 or alert == "YELLOW" or score >= 35.0:
+            h_min, h_max = 24, 36
+            time_window = "24 – 36 Hours"
+            urgency = "MODERATE_WATCH"
+            lead_cat = "EXTENDED_WATCH (24-36h)"
+            condition_ctx = f"Developing cyclonic circulation; sea condition rough with gusts ({wind}km/h)."
+            summary = "Outer cyclonic band impact estimated within 24–36 hours as storm tracks closer."
+            action = "Enforce complete ban on maritime and coastal activities."
+
+    # 5. GROUND SUBSIDENCE
+    elif hazard in ["Ground Subsidence"]:
+        if soil_sat >= 80 and p_24h >= 25.0:
+            h_min, h_max = 12, 24
+            time_window = "12 – 24 Hours"
+            urgency = "HIGH_CONVERGENCE"
+            lead_cat = "ELEVATED_WINDOW (12-24h)"
+            condition_ctx = f"Intense rainwater infiltration ({p_24h}mm) destabilizing uncompacted mine overburden and voids."
+            summary = "Accelerated subterranean void collapse and fissure expansion expected within 12–24 hours."
+            action = "Cordon off active fissure corridors; relocate vulnerable households above unmapped coal galleries."
+        elif score >= 55.0:
+            h_min, h_max = 24, 48
+            time_window = "24 – 48 Hours"
+            urgency = "MODERATE_WATCH"
+            lead_cat = "EXTENDED_WATCH (24-48h)"
+            condition_ctx = "Continuous tectonic/stratum stress over historical colliery extraction workings."
+            summary = "Gradual subsidence deformation active; structural damage impact window within 24–48 hours."
+            action = "Inspect building foundations and maintain acoustic emission sensors."
+
+    # 6. EXTREME HEAT
+    elif hazard in ["Extreme Heat"]:
+        if temp >= 45.0:
+            h_min, h_max = 2, 5
+            time_window = "2 – 5 Hours"
+            urgency = "IMMINENT_CRITICAL"
+            lead_cat = "CRITICAL_WINDOW (<5h)"
+            condition_ctx = f"Breaching critical human thermal tolerance ({temp}°C) during diurnal solar peak (12:00–16:00 IST)."
+            summary = "Acute heatstroke and severe thermal stress impact expected within 2–5 hours under direct solar radiation."
+            action = "Activate public cooling centers, suspend outdoor labor, and deploy mobile hydration units."
+        elif temp >= 40.0:
+            h_min, h_max = 6, 12
+            time_window = "6 – 12 Hours"
+            urgency = "HIGH_CONVERGENCE"
+            lead_cat = "ELEVATED_WINDOW (6-12h)"
+            condition_ctx = f"Elevated ambient heat index ({temp}°C) with low relative cooling."
+            summary = "High thermal distress impact expected during peak diurnal hours."
+            action = "Distribute ORS packets and issue heatwave advisories."
+
+    # 7. GENERIC / FALLBACK HIGH RISK
+    else:
+        if score >= 75.0:
+            h_min, h_max = 6, 12
+            time_window = "6 – 12 Hours"
+            urgency = "IMMINENT_CRITICAL"
+            lead_cat = "CRITICAL_WINDOW (<12h)"
+            condition_ctx = "Multi-factor vulnerability and historical hazard recurrence at peak threshold."
+            summary = "High probability disaster escalation expected within 6–12 hours under sustained pressure."
+            action = "Prepare immediate evacuation readiness."
+        elif score >= 55.0:
+            h_min, h_max = 18, 24
+            time_window = "18 – 24 Hours"
+            urgency = "HIGH_CONVERGENCE"
+            lead_cat = "ELEVATED_WINDOW (18-24h)"
+            condition_ctx = "Elevated multi-hazard exposure and vulnerable demographics."
+            summary = "Disaster impact escalation anticipated within 18–24 hours."
+            action = "Activate emergency contingency plans."
+
+    return {
+        "hoursMin": h_min,
+        "hoursMax": h_max,
+        "timeWindowFormatted": time_window,
+        "urgencyLevel": urgency,
+        "leadTimeCategory": lead_cat,
+        "circumstanceCondition": condition_ctx,
+        "impactSummary": summary,
+        "recommendedEvacuationAction": action,
+        "confidence": "HIGH" if (has_active_met_alert or score >= 55.0) else "MEDIUM"
+    }
+

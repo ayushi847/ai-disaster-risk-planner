@@ -33,7 +33,17 @@ const VillageDetails = ({
       alertReason: `${village.name} active environmental telemetry monitored via satellite radar mesh.`,
       liveAdjustedRiskScore: village.riskScore || 85.0,
       liveAdjustedRiskLevel: village.riskLevel || "CRITICAL",
-      dynamicRiskDelta: village.riskLevel === "CRITICAL" ? 5 : 0
+      dynamicRiskDelta: village.riskLevel === "CRITICAL" ? 5 : 0,
+      estimatedTimeToImpact: village.estimatedTimeToImpact || {
+        hoursMin: village.riskLevel === "CRITICAL" ? 4 : 12,
+        hoursMax: village.riskLevel === "CRITICAL" ? 8 : 24,
+        timeWindowFormatted: village.riskLevel === "CRITICAL" ? "4 – 8 Hours" : (village.riskLevel === "HIGH" ? "12 – 18 Hours" : "24 – 48 Hours"),
+        urgencyLevel: village.riskLevel === "CRITICAL" ? "IMMINENT_CRITICAL" : (village.riskLevel === "HIGH" ? "HIGH_CONVERGENCE" : "DEVELOPING_WATCH"),
+        leadTimeCategory: village.riskLevel === "CRITICAL" ? "CRITICAL_WINDOW (<8h)" : "ELEVATED_WINDOW (12-18h)",
+        circumstanceCondition: `Elevated ${village.hazardType || "disaster"} risk profile with high vulnerable population exposure.`,
+        impactSummary: `Impact projected within ${village.riskLevel === "CRITICAL" ? "4–8" : "12–18"} hours if current conditions persist.`,
+        recommendedEvacuationAction: village.riskLevel === "CRITICAL" ? "Execute tactical evacuation along primary corridor." : "Maintain shelter readiness."
+      }
     });
 
     // Fetch live from ML FastAPI
@@ -263,6 +273,67 @@ const VillageDetails = ({
           <strong>Early Warning:</strong> {liveWeather?.alertReason || "Live satellite monitoring active across regional catchment."}
         </div>
       </div>
+
+      {/* ⏱️ ESTIMATED TIME-TO-IMPACT (ETI) CARD */}
+      {(liveWeather?.estimatedTimeToImpact || village.estimatedTimeToImpact) && (() => {
+        const eti = liveWeather?.estimatedTimeToImpact || village.estimatedTimeToImpact;
+        const isCritical = eti.urgencyLevel === "IMMINENT_CRITICAL" || village.riskLevel === "CRITICAL";
+        const isUrgent = eti.urgencyLevel === "HIGH_CONVERGENCE" || village.riskLevel === "HIGH";
+        return (
+          <div
+            style={{
+              padding: "11px 12px",
+              background: isCritical
+                ? "linear-gradient(135deg, #fef2f2, #fff1f2)"
+                : isUrgent
+                ? "linear-gradient(135deg, #fff7ed, #ffedd5)"
+                : "linear-gradient(135deg, #fefce8, #fef9c3)",
+              border: `1.5px solid ${isCritical ? "#f87171" : isUrgent ? "#fb923c" : "#facc15"}`,
+              borderRadius: "10px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <span style={{ fontSize: "15px" }}>⏱️</span>
+                <span style={{ fontSize: "11px", fontWeight: "800", color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                  Estimated Time-to-Impact (ETI)
+                </span>
+              </div>
+              <span
+                style={{
+                  background: isCritical ? "#dc2626" : isUrgent ? "#ea580c" : "#ca8a04",
+                  color: "#ffffff",
+                  padding: "2px 8px",
+                  borderRadius: "12px",
+                  fontSize: "10.5px",
+                  fontWeight: "800",
+                  letterSpacing: "0.3px",
+                }}
+              >
+                Within {eti.timeWindowFormatted}
+              </span>
+            </div>
+
+            <div style={{ fontSize: "11px", color: "#1e293b", lineHeight: "1.45", marginBottom: "4px" }}>
+              <strong style={{ color: "#0f172a" }}>If circumstances persist: </strong>
+              {eti.circumstanceCondition}
+            </div>
+
+            {eti.impactSummary && (
+              <div style={{ fontSize: "10.5px", color: "#64748b", fontStyle: "italic", borderTop: "1px dashed rgba(0,0,0,0.1)", paddingTop: "4px", marginTop: "4px" }}>
+                📢 <strong>Impact Forecast:</strong> {eti.impactSummary}
+              </div>
+            )}
+
+            {eti.recommendedEvacuationAction && (
+              <div style={{ marginTop: "4px", fontSize: "10.5px", color: isCritical ? "#b91c1c" : "#c2410c", fontWeight: "700" }}>
+                🎯 Action Window: {eti.recommendedEvacuationAction}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* TECHNICAL ASSESSMENT BRIEF */}
       <div

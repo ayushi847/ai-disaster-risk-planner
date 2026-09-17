@@ -438,6 +438,7 @@ const HazardForecast = () => {
                 <th style={{ padding: "10px 16px", fontWeight: "600" }}>District</th>
                 <th style={{ padding: "10px 16px", fontWeight: "600" }}>Severity</th>
                 <th style={{ padding: "10px 16px", fontWeight: "600" }}>Population At Risk</th>
+                <th style={{ padding: "10px 16px", fontWeight: "600" }}>Impact Horizon (ETI)</th>
                 <th style={{ padding: "10px 16px", fontWeight: "600" }}>Forecast Trend</th>
               </tr>
             </thead>
@@ -445,6 +446,12 @@ const HazardForecast = () => {
               {hazards.slice(0, 10).map((h, i) => {
                 const sev = getSeverity(h);
                 const color = SEVERITY_COLORS[sev] || "#64748b";
+                const isCritical = sev === "CRITICAL" || sev === "SEVERE";
+                const isHigh = sev === "HIGH";
+                const etiWindow = isCritical ? "2 – 6 Hours" : isHigh ? "12 – 18 Hours" : "24 – 48 Hours";
+                const etiBg = isCritical ? "#fef2f2" : isHigh ? "#fff7ed" : "#fefce8";
+                const etiBorder = isCritical ? "#fca5a5" : isHigh ? "#fdba74" : "#fde047";
+                const etiText = isCritical ? "#b91c1c" : isHigh ? "#c2410c" : "#854d0e";
                 return (
                   <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "12px 16px", fontWeight: "600", color: "#0f172a" }}>
@@ -473,6 +480,25 @@ const HazardForecast = () => {
                     </td>
                     <td style={{ padding: "12px 16px", color: "#334155" }}>
                       {Number(h?.populationAtRisk || h?.population || 12000).toLocaleString()}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <div
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          background: etiBg,
+                          border: `1px solid ${etiBorder}`,
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                          fontSize: "11.5px",
+                          fontWeight: "700",
+                          color: etiText,
+                        }}
+                      >
+                        <span>⏱️</span>
+                        <span>Within {etiWindow}</span>
+                      </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <span style={{ color: "#ef4444", fontWeight: "700", fontSize: "12px" }}>▲ Rising (+14%)</span>

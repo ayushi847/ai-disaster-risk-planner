@@ -31,6 +31,7 @@ from optimizer import optimize_assignments, compute_risk_scores
 from anomaly_detector import detect_anomalies
 from llm_summarizer import summarize_all_villages, generate_ai_summary
 from live_weather_sensor import fetch_village_live_telemetry
+from geo_validator import compute_estimated_time_to_impact
 
 load_dotenv()
 
@@ -102,6 +103,20 @@ def load_and_compute():
         # Summary
         summary = ai_summaries.get(v_id, "")
 
+        std_hazard = row.get("std_hazard_type", row.get("hazard_type", "Flood"))
+        eti = compute_estimated_time_to_impact(
+            hazard_type=std_hazard,
+            dynamic_risk_score=row["score"],
+            realtime_trigger=row["hazard_intensity"],
+            precip_current=0.0,
+            precip_24h=round(float(row["hazard_intensity"]) * 45.0, 1),
+            soil_saturation_pct=int(float(row["hazard_intensity"]) * 85),
+            wind_speed_kmh=25.0 if std_hazard in ["Cyclone", "Storm Surge"] else 12.0,
+            temp_c=41.0 if std_hazard == "Extreme Heat" else 26.0,
+            imd_alert_level="RED" if risk_level == "CRITICAL" else ("ORANGE" if risk_level == "HIGH" else "GREEN"),
+            has_active_met_alert=(risk_level in ["CRITICAL", "HIGH"])
+        )
+
         risk_payload.append({
             # Original backward-compatible fields
             "villageId": v_id,
@@ -110,7 +125,7 @@ def load_and_compute():
             "state": row.get("state", ""),
             "lat": float(row.get("latitude", 26.14)),
             "lng": float(row.get("longitude", 91.73)),
-            "hazardType": row.get("std_hazard_type", row.get("hazard_type", "Flood")),
+            "hazardType": std_hazard,
             "hazardDetail": row.get("hazard_detail", row.get("hazard_type", "")),
             "geoValidationRule": row.get("geo_validation_rule", "Validated"),
             "score": row["score"],
@@ -131,6 +146,7 @@ def load_and_compute():
             "anomalyScore": anom_info["anomalyScore"],
             "anomalyReason": anom_info["anomalyReason"],
             "aiSummary": summary,
+            "estimatedTimeToImpact": eti,
         })
 
     # 5. Hungarian Optimization for relocation prioritization

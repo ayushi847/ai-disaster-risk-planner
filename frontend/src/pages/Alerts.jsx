@@ -227,6 +227,87 @@ const Alerts = () => {
 
 
 
+  // Helper to resolve physical Estimated Time-to-Impact
+  const resolveETI = (tel, village, hazard, score, type) => {
+    if (tel?.estimatedTimeToImpact) {
+      return tel.estimatedTimeToImpact;
+    }
+    if (village?.estimatedTimeToImpact) {
+      return village.estimatedTimeToImpact;
+    }
+    const h = String(hazard || "").toLowerCase();
+    if (type === "CRITICAL" || score >= 75) {
+      if (h.includes("flash")) {
+        return {
+          hoursMin: 2,
+          hoursMax: 4,
+          timeWindowFormatted: "2 – 4 Hours",
+          urgencyLevel: "IMMINENT_CRITICAL",
+          leadTimeCategory: "CRITICAL_WINDOW (<4h)",
+          circumstanceCondition: "Torrential downpour exceeding flash drainage run-off capacity.",
+          impactSummary: "Severe flash inundation impact expected within 2–4 hours if torrential rainfall persists.",
+          recommendedEvacuationAction: "Execute immediate tactical evacuation to high ground."
+        };
+      }
+      if (h.includes("landslide")) {
+        return {
+          hoursMin: 3,
+          hoursMax: 6,
+          timeWindowFormatted: "3 – 6 Hours",
+          urgencyLevel: "IMMINENT_CRITICAL",
+          leadTimeCategory: "CRITICAL_WINDOW (<6h)",
+          circumstanceCondition: "Critical pore water saturation breaching slope shear stability.",
+          impactSummary: "Catastrophic slope failure impact expected within 3–6 hours if saturation persists.",
+          recommendedEvacuationAction: "Clear all homes in hillside runout zones immediately."
+        };
+      }
+      if (h.includes("cyclone") || h.includes("surge")) {
+        return {
+          hoursMin: 3,
+          hoursMax: 6,
+          timeWindowFormatted: "3 – 6 Hours",
+          urgencyLevel: "IMMINENT_CRITICAL",
+          leadTimeCategory: "CRITICAL_WINDOW (<6h)",
+          circumstanceCondition: "Gale-force onshore winds converging with astronomical tidal surge.",
+          impactSummary: "Coastal surge inundation impact expected within 3–6 hours on current trajectory.",
+          recommendedEvacuationAction: "Evacuate coastal belt to cyclone multi-purpose shelters."
+        };
+      }
+      return {
+        hoursMin: 6,
+        hoursMax: 12,
+        timeWindowFormatted: "6 – 12 Hours",
+        urgencyLevel: "IMMINENT_CRITICAL",
+        leadTimeCategory: "CRITICAL_WINDOW (<12h)",
+        circumstanceCondition: "Severe catchment rainfall pushing river stage to danger embankment breach.",
+        impactSummary: "Embankment breach and habitation inundation expected within 6–12 hours if inflow persists.",
+        recommendedEvacuationAction: "Execute priority shelter transit along designated corridors."
+      };
+    } else if (type === "URGENT" || score >= 55) {
+      return {
+        hoursMin: 12,
+        hoursMax: 18,
+        timeWindowFormatted: "12 – 18 Hours",
+        urgencyLevel: "HIGH_CONVERGENCE",
+        leadTimeCategory: "ELEVATED_WINDOW (12-18h)",
+        circumstanceCondition: "Elevated environmental saturation and upstream flood wave transit.",
+        impactSummary: "Disaster impact escalation anticipated within 12–18 hours under prevailing conditions.",
+        recommendedEvacuationAction: "Mobilize evacuation transport and verify shelter readiness."
+      };
+    } else {
+      return {
+        hoursMin: 24,
+        hoursMax: 48,
+        timeWindowFormatted: "24 – 48 Hours",
+        urgencyLevel: "MODERATE_WATCH",
+        leadTimeCategory: "EXTENDED_WATCH (24-48h)",
+        circumstanceCondition: "Persistent seasonal weather pressure with elevated vulnerability.",
+        impactSummary: "Disaster impact window estimated in 24–48 hours if circumstances escalate.",
+        recommendedEvacuationAction: "Maintain continuous sensor mesh observation."
+      };
+    }
+  };
+
   // =====================================================
   // GENERATE LIVE ALERTS
   // =====================================================
@@ -264,6 +345,7 @@ const Alerts = () => {
         (dynamicScore >= 75 && hasTrigger)
       ) {
 
+        const eti = resolveETI(tel, village, hazard, dynamicScore, "CRITICAL");
         generated.push({
           id: `critical-${village.id ?? index}`,
           type: "CRITICAL",
@@ -277,7 +359,8 @@ const Alerts = () => {
           score: dynamicScore,
           population,
           telemetry: tel,
-          action: "Immediate tactical evacuation and shelter readiness required. Active threshold breached.",
+          estimatedTimeToImpact: eti,
+          action: eti.recommendedEvacuationAction || "Immediate tactical evacuation and shelter readiness required. Active threshold breached.",
           time: new Date(),
         });
         alreadyAlerted.add(village.id);
@@ -291,6 +374,7 @@ const Alerts = () => {
         (dynamicScore >= 55 && hasTrigger)
       ) {
 
+        const eti = resolveETI(tel, village, hazard, dynamicScore, "URGENT");
         generated.push({
           id: `urgent-${village.id ?? index}`,
           type: "URGENT",
@@ -304,7 +388,8 @@ const Alerts = () => {
           score: dynamicScore,
           population,
           telemetry: tel,
-          action: "Activate relocation contingency and verify nearby shelter capacity.",
+          estimatedTimeToImpact: eti,
+          action: eti.recommendedEvacuationAction || "Activate relocation contingency and verify nearby shelter capacity.",
           time: new Date(),
         });
         alreadyAlerted.add(village.id);
@@ -318,6 +403,7 @@ const Alerts = () => {
         (tel && (tel.soilSaturationPercent >= 85 || tel.rainfall24hMm >= 20))
       ) {
 
+        const eti = resolveETI(tel, village, hazard, dynamicScore, "HIGH");
         generated.push({
           id: `high-${village.id ?? index}`,
           type: "HIGH",
@@ -331,7 +417,8 @@ const Alerts = () => {
           score: dynamicScore,
           population,
           telemetry: tel,
-          action: "Maintain continuous sensor mesh observation and review drainage/slope telemetry.",
+          estimatedTimeToImpact: eti,
+          action: eti.recommendedEvacuationAction || "Maintain continuous sensor mesh observation and review drainage/slope telemetry.",
           time: new Date(),
         });
         alreadyAlerted.add(village.id);
@@ -348,6 +435,7 @@ const Alerts = () => {
         const riskLvl = getRisk(village);
         const alertType = riskLvl === "CRITICAL" ? "URGENT" : "HIGH";
         const icon = riskLvl === "CRITICAL" ? "🔶" : "🟡";
+        const eti = resolveETI(tel, village, hazard, staticScore, alertType);
 
         generated.push({
           id: `structural-${village.id ?? index}`,
@@ -360,9 +448,10 @@ const Alerts = () => {
           score: staticScore,
           population,
           telemetry: tel,
-          action: riskLvl === "CRITICAL" 
+          estimatedTimeToImpact: eti,
+          action: eti.recommendedEvacuationAction || (riskLvl === "CRITICAL" 
             ? "Priority relocation assessment required. Verify structural safety and maintain evacuation readiness."
-            : "Enhanced monitoring recommended. Review drainage infrastructure and slope stability reports.",
+            : "Enhanced monitoring recommended. Review drainage infrastructure and slope stability reports."),
           time: new Date(),
         });
         alreadyAlerted.add(village.id);
@@ -374,6 +463,7 @@ const Alerts = () => {
         village.isAnomaly &&
         !alreadyAlerted.has(village.id)
       ) {
+        const eti = resolveETI(tel, village, hazard, getScore(village), "HIGH");
         generated.push({
           id: `anomaly-${village.id ?? index}`,
           type: "HIGH",
@@ -387,6 +477,7 @@ const Alerts = () => {
           score: getScore(village),
           population,
           telemetry: tel,
+          estimatedTimeToImpact: eti,
           action: "Investigate data anomaly. Cross-reference with field conditions and verify sensor accuracy.",
           time: new Date(),
         });
@@ -1421,6 +1512,88 @@ const AlertItem = ({
 
             </div>
 
+
+            {/* ESTIMATED TIME-TO-IMPACT (ETI) CARD */}
+            {alert.estimatedTimeToImpact && (
+              <div
+                style={{
+                  marginTop: "12px",
+                  background: alert.type === "CRITICAL"
+                    ? "linear-gradient(135deg, rgba(254, 242, 242, 0.95), rgba(254, 226, 226, 0.6))"
+                    : alert.type === "URGENT"
+                    ? "linear-gradient(135deg, rgba(255, 247, 237, 0.95), rgba(254, 215, 170, 0.6))"
+                    : "linear-gradient(135deg, rgba(254, 252, 232, 0.95), rgba(254, 240, 138, 0.6))",
+                  border: `1.5px solid ${alert.type === "CRITICAL" ? "#fca5a5" : alert.type === "URGENT" ? "#fdba74" : "#fde047"}`,
+                  borderRadius: "10px",
+                  padding: "10px 14px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                    <span style={{ fontSize: "16px" }}>⏱️</span>
+                    <span style={{ fontSize: "11.5px", fontWeight: "800", color: "#0f172a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                      Estimated Time-to-Impact:
+                    </span>
+                    <span
+                      style={{
+                        background: alert.type === "CRITICAL" ? "#dc2626" : alert.type === "URGENT" ? "#ea580c" : "#ca8a04",
+                        color: "#ffffff",
+                        padding: "3px 9px",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        fontWeight: "800",
+                        letterSpacing: "0.3px",
+                      }}
+                    >
+                      Within {alert.estimatedTimeToImpact.timeWindowFormatted}
+                    </span>
+                  </div>
+
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      color: alert.type === "CRITICAL" ? "#991b1b" : alert.type === "URGENT" ? "#c2410c" : "#854d0e",
+                      background: "rgba(255,255,255,0.7)",
+                      padding: "2px 7px",
+                      borderRadius: "6px",
+                    }}
+                  >
+                    {alert.estimatedTimeToImpact.leadTimeCategory || "LEAD-TIME WINDOW"}
+                  </span>
+                </div>
+
+                <div style={{ fontSize: "12px", color: "#1e293b", lineHeight: "1.45" }}>
+                  <strong style={{ color: "#0f172a" }}>If circumstances persist: </strong>
+                  {alert.estimatedTimeToImpact.circumstanceCondition}
+                </div>
+
+                {alert.estimatedTimeToImpact.impactSummary && (
+                  <div
+                    style={{
+                      fontSize: "11.5px",
+                      color: "#475569",
+                      fontStyle: "italic",
+                      marginTop: "3px",
+                      paddingTop: "3px",
+                      borderTop: "1px dashed rgba(0,0,0,0.1)",
+                    }}
+                  >
+                    📢 <strong>Forecast:</strong> {alert.estimatedTimeToImpact.impactSummary}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div
               style={{
