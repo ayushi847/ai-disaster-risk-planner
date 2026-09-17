@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [selectedVillage, setSelectedVillage] = useState(null);
   const [focusLocation, setFocusLocation] = useState(null);
   const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Load live data from Backend & ML engine on mount
   useEffect(() => {
@@ -102,6 +103,23 @@ const Dashboard = () => {
   const handleCloseDetails = useCallback(() => {
     setDetailsPanelOpen(false);
     setTimeout(() => setSelectedVillage(null), 350);
+  }, []);
+
+  const handleSelectVillageFromSearch = useCallback((v) => {
+    if (!v) return;
+    const vWithTs = { ...v, _ts: Date.now() };
+
+    // Reset restrictive filters so the selected habitation is guaranteed to be visible
+    setActiveDisasterTab("ALL");
+    setDistrictFilter("ALL");
+    setRiskFilter("ALL");
+    setPriorityFilter("ALL");
+    setShowAnomaliesOnly(false);
+
+    setSelectedVillage(vWithTs);
+    if (v.lat && v.lng) {
+      setFocusLocation({ lat: v.lat, lng: v.lng, village: vWithTs, _ts: Date.now() });
+    }
   }, []);
 
   // Generate dynamic radar text from live sensor feed OR village fallback data
@@ -361,17 +379,14 @@ const Dashboard = () => {
         }}
       >
         {/* Left: Search input + Outliers toggle */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "270px" }}>
-          <div style={{ width: "210px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "290px" }}>
+          <div style={{ width: "270px" }}>
             <SearchBar
-              villages={filteredVillages}
-              onSelectVillage={(v) => {
-                const vWithTs = v ? { ...v, _ts: Date.now() } : null;
-                setSelectedVillage(vWithTs);
-                if (v && v.lat && v.lng) {
-                  setFocusLocation({ lat: v.lat, lng: v.lng, village: vWithTs, _ts: Date.now() });
-                }
-              }}
+              villages={villagesList}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onSelectVillage={handleSelectVillageFromSearch}
+              placeholder="🔍 Search habitations, district..."
             />
           </div>
 
