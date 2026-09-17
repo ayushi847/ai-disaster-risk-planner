@@ -3,6 +3,7 @@ import { relocationSites } from "../../utils/relocationSites";
 import { calculateDistance } from "../../utils/mapHelpers";
 import { generateShelterReasoning } from "../../utils/shelterReasoning";
 import { ML_URL } from "../../services/api";
+import AuthorityHelplinePanel from "../common/AuthorityHelplinePanel";
 
 const VillageDetails = ({
   village,
@@ -638,6 +639,26 @@ const VillageDetails = ({
           </p>
         )}
       </div>
+
+      {/* NEAREST EMERGENCY HELPLINES & SOS DISPATCH */}
+      <AuthorityHelplinePanel
+        locationItem={{
+          name: village.name,
+          villageName: village.name,
+          district: village.district,
+          state: village.state,
+          hazardType: village.hazardType,
+          riskLevel: village.riskLevel,
+          lat: village.lat,
+          lng: village.lng,
+          population: village.population,
+          estimatedTimeToImpact: liveWeather?.estimatedTimeToImpact || village.estimatedTimeToImpact,
+          title: `${village.name} Emergency Intervention`,
+        }}
+        title="Nearest Emergency Response Helplines"
+        compact={true}
+        maxItems={3}
+      />
 
       {/* AUTHORITY DECISION WORKFLOW */}
       <div

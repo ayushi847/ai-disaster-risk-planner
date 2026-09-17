@@ -6,6 +6,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { villages as initialVillages } from "../utils/villages";
 import { hazards as initialHazards } from "../utils/hazards";
+import AuthorityHelplinePanel from "../components/common/AuthorityHelplinePanel";
+import {
+  getNearestAuthorities,
+  generateEmergencySmsTemplate,
+  getSmsUri,
+  getCallUri
+} from "../utils/authorityHelplines";
 
 import {
   getVillages,
@@ -324,6 +331,9 @@ const Alerts = () => {
       const population = getPopulation(village);
       const villageName = getName(village);
       const district = getDistrict(village);
+      const state = village.state || village.location?.state || "";
+      const lat = village.lat ?? village.latitude ?? (village.coordinates ? village.coordinates[0] : null);
+      const lng = village.lng ?? village.longitude ?? (village.coordinates ? village.coordinates[1] : null);
 
       // Standardized hazard type from sensor feed or validated village data
       const hazard = tel?.hazardType || getHazard(village);
@@ -355,6 +365,9 @@ const Alerts = () => {
             : `${villageName} in ${district} is under critical disaster threat backed by live sensor thresholds.`,
           village: villageName,
           district,
+          state,
+          lat,
+          lng,
           hazard,
           score: dynamicScore,
           population,
@@ -384,6 +397,9 @@ const Alerts = () => {
             : `${villageName} in ${district} has elevated vulnerability and active environmental watch.`,
           village: villageName,
           district,
+          state,
+          lat,
+          lng,
           hazard,
           score: dynamicScore,
           population,
@@ -413,6 +429,9 @@ const Alerts = () => {
             : `${villageName} in ${district} is under satellite mesh monitoring (Soil: ${tel?.soilSaturationPercent || 0}%, Rain: ${tel?.rainfall24hMm || 0}mm).`,
           village: villageName,
           district,
+          state,
+          lat,
+          lng,
           hazard,
           score: dynamicScore,
           population,
@@ -444,6 +463,9 @@ const Alerts = () => {
           message: `${villageName} in ${district} has a ${riskLvl} baseline risk (score: ${staticScore.toFixed(1)}) based on geomorphic assessment, historical disaster patterns, and population vulnerability.`,
           village: villageName,
           district,
+          state,
+          lat,
+          lng,
           hazard,
           score: staticScore,
           population,
@@ -473,6 +495,9 @@ const Alerts = () => {
             : `${villageName} in ${district} flagged by IsolationForest anomaly detection. Risk pattern deviates from expected baseline.`,
           village: villageName,
           district,
+          state,
+          lat,
+          lng,
           hazard,
           score: getScore(village),
           population,
@@ -1301,6 +1326,28 @@ const AlertCard = ({
 const AlertItem = ({
   alert,
 }) => {
+  const [showAllAuthorities, setShowAllAuthorities] = useState(false);
+
+  const locationItem = useMemo(() => ({
+    name: alert.village,
+    villageName: alert.village,
+    district: alert.district,
+    state: alert.state || "",
+    lat: alert.lat,
+    lng: alert.lng,
+    hazardType: alert.hazard,
+    severity: alert.type,
+    population: alert.population,
+    estimatedTimeToImpact: alert.estimatedTimeToImpact,
+    title: alert.title,
+    message: alert.message,
+  }), [alert]);
+
+  const nearestAuthorities = useMemo(() => getNearestAuthorities(locationItem), [locationItem]);
+  const primaryAuth = nearestAuthorities[0] || null;
+  const primarySms = primaryAuth ? generateEmergencySmsTemplate(primaryAuth, locationItem) : "";
+  const primarySmsHref = primaryAuth ? getSmsUri(primaryAuth.phone, primarySms) : "#";
+  const primaryCallHref = primaryAuth ? getCallUri(primaryAuth.phone) : "#";
 
   const styles = {
 
@@ -1618,6 +1665,130 @@ const AlertItem = ({
               >
                 {alert.action}
               </span>
+            </div>
+
+            {/* NEAREST AUTHORITY HELPLINES & 1-CLICK CALL / SMS DISPATCH */}
+            <div
+              style={{
+                marginTop: "12px",
+                background: "#0f172a",
+                borderRadius: "10px",
+                padding: "10px 12px",
+                border: "1px solid #1e293b",
+                color: "#ffffff",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: "220px" }}>
+                  <span style={{ fontSize: "16px" }}>🚨</span>
+                  <div>
+                    <div style={{ fontSize: "11.5px", fontWeight: "700", color: "#f87171", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span>Nearest Authority:</span>
+                      <span style={{ color: "#f1f5f9", fontWeight: "600" }}>{primaryAuth?.name || "District Disaster Authority (DDMA)"}</span>
+                    </div>
+                    <div style={{ fontSize: "10.5px", color: "#94a3b8", display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
+                      <span style={{ fontFamily: "monospace", color: "#38bdf8", fontWeight: "600" }}>📞 {primaryAuth?.displayPhone || primaryAuth?.phone || "112"}</span>
+                      <span>•</span>
+                      <span>{primaryAuth?.jurisdiction || `${alert.district} Sector`}</span>
+                      <span className="flex items-center gap-1 text-emerald-400 font-mono text-[10px]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />
+                        24x7
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Direct Action Buttons: CALL and SMS side-by-side */}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                  {/* CALL BUTTON */}
+                  <a
+                    href={primaryCallHref}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      background: "#059669",
+                      color: "#ffffff",
+                      padding: "5px 11px",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                      boxShadow: "0 2px 4px rgba(5, 150, 105, 0.4)",
+                      transition: "transform 0.1s ease",
+                    }}
+                    title={`Direct Call to ${primaryAuth?.name || 'Emergency Authority'}`}
+                  >
+                    <span>📞</span>
+                    <span>Call Now</span>
+                  </a>
+
+                  {/* PRE-DRAFTED SMS SOS BUTTON */}
+                  <a
+                    href={primarySmsHref}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      background: "linear-gradient(135deg, #0284c7, #2563eb)",
+                      color: "#ffffff",
+                      padding: "5px 11px",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                      boxShadow: "0 2px 4px rgba(2, 132, 199, 0.4)",
+                      transition: "transform 0.1s ease",
+                    }}
+                    title="Opens SMS app with complete pre-drafted SOS template including location, GPS, hazard & severity"
+                  >
+                    <span>💬</span>
+                    <span>Send SOS SMS</span>
+                  </a>
+
+                  {/* TOGGLE ALL AUTHORITIES */}
+                  <button
+                    type="button"
+                    onClick={() => setShowAllAuthorities(!showAllAuthorities)}
+                    style={{
+                      padding: "5px 9px",
+                      borderRadius: "6px",
+                      background: showAllAuthorities ? "#334155" : "#1e293b",
+                      border: "1px solid #475569",
+                      color: "#cbd5e1",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "3px",
+                    }}
+                  >
+                    <span>{showAllAuthorities ? "Hide Helplines ▲" : "All Authorities (NDRF, SDMA) ▼"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* EXPANDED FULL HELPLINES PANEL */}
+              {showAllAuthorities && (
+                <div style={{ marginTop: "10px", borderTop: "1px solid #1e293b", paddingTop: "10px" }}>
+                  <AuthorityHelplinePanel
+                    locationItem={locationItem}
+                    compact={true}
+                    showHeading={false}
+                    maxItems={5}
+                  />
+                </div>
+              )}
             </div>
 
           </div>
