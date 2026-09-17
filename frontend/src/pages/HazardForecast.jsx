@@ -98,14 +98,38 @@ const HazardForecast = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const getHazardName = (item) => item?.hazardType || item?.hazard_type || item?.hazard || item?.name || "Flood";
+  const getHazardType = (item) => {
+    const raw = item?.hazardType || item?.hazard_type || item?.type || item?.hazard;
+    if (raw && typeof raw === "string") {
+      const lower = raw.toLowerCase();
+      if (lower.includes("flood")) return "Flood";
+      if (lower.includes("landslide")) return "Landslide";
+      if (lower.includes("cyclone") || lower.includes("surge") || lower.includes("storm")) return "Cyclone";
+      if (lower.includes("quake")) return "Earthquake";
+      if (lower.includes("subsidence") || lower.includes("sinkhole")) return "Subsidence";
+      if (lower.includes("mine") || lower.includes("fire") || lower.includes("collapse")) return "Mine Collapse";
+      if (lower.includes("drought")) return "Drought";
+      return raw.charAt(0).toUpperCase() + raw.slice(1);
+    }
+    return "Flood";
+  };
+
+  const getZoneName = (item) => item?.name || item?.zoneName || item?.title || "Hazard Zone";
   const getSeverity = (item) => String(item?.severity || item?.riskLevel || item?.risk_level || "MEDIUM").toUpperCase();
   const getRiskScore = (item) => Number(item?.riskScore ?? item?.score ?? 50);
 
   const hazardList = useMemo(() => {
-    const set = new Set([...hazards.map(getHazardName), ...villages.map(v => v.hazardType || v.hazard || "Flood")]);
+    const set = new Set([
+      ...hazards.map(getHazardType),
+      ...villages.map(getHazardType),
+    ]);
     return ["ALL", ...Array.from(set).filter(Boolean).sort()];
   }, [hazards, villages]);
+
+  const filteredHazards = useMemo(() => {
+    if (selectedHazard === "ALL") return hazards;
+    return hazards.filter((h) => getHazardType(h).toLowerCase() === selectedHazard.toLowerCase());
+  }, [hazards, selectedHazard]);
 
   // Forecast time series data (synthetic projection calibrated to current hazard severity)
   const timeSeriesData = useMemo(() => {
@@ -136,15 +160,24 @@ const HazardForecast = () => {
   const hazardTypeData = useMemo(() => {
     const map = {};
     hazards.forEach((h) => {
-      const name = getHazardName(h);
-      if (!map[name]) map[name] = 0;
-      map[name]++;
+      const type = getHazardType(h);
+      if (!map[type]) map[type] = 0;
+      map[type]++;
     });
-    const colors = ["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#06b6d4"];
+    const typeColorMap = {
+      Flood: "#3b82f6",
+      Landslide: "#f59e0b",
+      Cyclone: "#06b6d4",
+      Earthquake: "#ef4444",
+      Drought: "#eab308",
+      "Mine Collapse": "#8b5cf6",
+      Subsidence: "#ec4899",
+    };
+    const fallbackColors = ["#3b82f6", "#f59e0b", "#10b981", "#8b5cf6", "#ec4899", "#06b6d4"];
     return Object.entries(map).map(([name, value], i) => ({
       name,
       value,
-      color: colors[i % colors.length],
+      color: typeColorMap[name] || fallbackColors[i % fallbackColors.length],
     }));
   }, [hazards]);
 
@@ -341,9 +374,12 @@ const HazardForecast = () => {
             borderRadius: "12px",
             border: "1px solid #e2e8f0",
             boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <div style={{ marginBottom: "12px" }}>
+          <div style={{ marginBottom: "8px" }}>
             <h3 style={{ fontSize: "15px", fontWeight: "700", margin: 0, color: "#0f172a" }}>
               Active Hazard Type Share
             </h3>
@@ -352,15 +388,15 @@ const HazardForecast = () => {
             </p>
           </div>
 
-          <div style={{ width: "100%", height: 260 }}>
+          <div style={{ width: "100%", height: 260, position: "relative" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ top: 5, right: 10, bottom: 10, left: 10 }}>
                 <Pie
                   data={hazardTypeData}
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   innerRadius={50}
-                  outerRadius={85}
+                  outerRadius={80}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -369,7 +405,11 @@ const HazardForecast = () => {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend verticalAlign="bottom" height={36} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={32}
+                  wrapperStyle={{ paddingTop: "8px", fontSize: "12px", fontWeight: "600" }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -383,9 +423,12 @@ const HazardForecast = () => {
             borderRadius: "12px",
             border: "1px solid #e2e8f0",
             boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <div style={{ marginBottom: "12px" }}>
+          <div style={{ marginBottom: "8px" }}>
             <h3 style={{ fontSize: "15px", fontWeight: "700", margin: 0, color: "#0f172a" }}>
               Threat Escalation Comparison
             </h3>
@@ -394,15 +437,19 @@ const HazardForecast = () => {
             </p>
           </div>
 
-          <div style={{ width: "100%", height: 260 }}>
+          <div style={{ width: "100%", height: 260, position: "relative" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={threatRadarData}>
+              <RadarChart data={threatRadarData} cx="50%" cy="45%" outerRadius={70}>
                 <PolarGrid stroke="#e2e8f0" />
-                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "#334155", fontWeight: "600" }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10.5, fill: "#334155", fontWeight: "600" }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9, fill: "#94a3b8" }} />
                 <Radar name="Current Baseline" dataKey="current" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} />
                 <Radar name="Projected 72h Peak" dataKey="forecast72h" stroke="#ef4444" fill="#ef4444" fillOpacity={0.4} />
-                <Legend verticalAlign="bottom" height={28} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={28}
+                  wrapperStyle={{ paddingTop: "6px", fontSize: "11.5px", fontWeight: "600" }}
+                />
                 <Tooltip content={<CustomTooltip />} />
               </RadarChart>
             </ResponsiveContainer>
@@ -420,13 +467,50 @@ const HazardForecast = () => {
           overflow: "hidden",
         }}
       >
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid #f1f5f9" }}>
-          <h3 style={{ fontSize: "15px", fontWeight: "700", margin: 0, color: "#0f172a" }}>
-            Active Hazard Warning Perimeters
-          </h3>
-          <p style={{ fontSize: "12px", color: "#64748b", margin: "2px 0 0 0" }}>
-            Real-time geospatial hazard zones with severity classifications
-          </p>
+        <div
+          style={{
+            padding: "16px 20px",
+            borderBottom: "1px solid #f1f5f9",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "10px",
+          }}
+        >
+          <div>
+            <h3 style={{ fontSize: "15px", fontWeight: "700", margin: 0, color: "#0f172a" }}>
+              Active Hazard Warning Perimeters
+            </h3>
+            <p style={{ fontSize: "12px", color: "#64748b", margin: "2px 0 0 0" }}>
+              Real-time geospatial hazard zones with severity classifications
+            </p>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>Filter Hazard:</span>
+            <select
+              value={selectedHazard}
+              onChange={(e) => setSelectedHazard(e.target.value)}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "8px",
+                border: "1px solid #cbd5e1",
+                fontSize: "12px",
+                fontWeight: "600",
+                color: "#1e293b",
+                background: "#f8fafc",
+                cursor: "pointer",
+                outline: "none",
+              }}
+            >
+              {hazardList.map((type) => (
+                <option key={type} value={type}>
+                  {type === "ALL" ? "All Hazard Types" : type}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div style={{ overflowX: "auto" }}>
@@ -443,7 +527,8 @@ const HazardForecast = () => {
               </tr>
             </thead>
             <tbody>
-              {hazards.slice(0, 10).map((h, i) => {
+              {filteredHazards.map((h, i) => {
+                const type = getHazardType(h);
                 const sev = getSeverity(h);
                 const color = SEVERITY_COLORS[sev] || "#64748b";
                 const isCritical = sev === "CRITICAL" || sev === "SEVERE";
@@ -452,14 +537,35 @@ const HazardForecast = () => {
                 const etiBg = isCritical ? "#fef2f2" : isHigh ? "#fff7ed" : "#fefce8";
                 const etiBorder = isCritical ? "#fca5a5" : isHigh ? "#fdba74" : "#fde047";
                 const etiText = isCritical ? "#b91c1c" : isHigh ? "#c2410c" : "#854d0e";
+
+                const typeBadgeColors = {
+                  Flood: { bg: "#eff6ff", text: "#1d4ed8", border: "#bfdbfe" },
+                  Landslide: { bg: "#fef3c7", text: "#b45309", border: "#fde68a" },
+                  Cyclone: { bg: "#ecfeff", text: "#0e7490", border: "#a5f3fc" },
+                  Earthquake: { bg: "#fef2f2", text: "#b91c1c", border: "#fecaca" },
+                  Subsidence: { bg: "#fdf2f8", text: "#be185d", border: "#fbcfe8" },
+                  "Mine Collapse": { bg: "#f5f3ff", text: "#6d28d9", border: "#ddd6fe" },
+                };
+                const badge = typeBadgeColors[type] || { bg: "#f1f5f9", text: "#334155", border: "#e2e8f0" };
+
                 return (
                   <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "12px 16px", fontWeight: "600", color: "#0f172a" }}>
-                      {h?.name || h?.zoneName || `Hazard Sector ${i + 1}`}
+                      {getZoneName(h)}
                     </td>
                     <td style={{ padding: "12px 16px" }}>
-                      <span style={{ background: "#f1f5f9", padding: "3px 8px", borderRadius: "6px", fontSize: "12px", fontWeight: "500" }}>
-                        {getHazardName(h)}
+                      <span
+                        style={{
+                          background: badge.bg,
+                          color: badge.text,
+                          border: `1px solid ${badge.border}`,
+                          padding: "3px 9px",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {type}
                       </span>
                     </td>
                     <td style={{ padding: "12px 16px", color: "#64748b" }}>{h?.district || "Regional"}</td>
@@ -479,7 +585,7 @@ const HazardForecast = () => {
                       </span>
                     </td>
                     <td style={{ padding: "12px 16px", color: "#334155" }}>
-                      {Number(h?.populationAtRisk || h?.population || 12000).toLocaleString()}
+                      {Number(h?.affectedPopulation || h?.populationAtRisk || h?.population || 12000).toLocaleString()}
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <div
