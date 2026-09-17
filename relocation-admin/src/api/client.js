@@ -157,7 +157,7 @@ const INITIAL_MOCK_AUDIT_LOGS = [
     action: 'SENSOR_DATA_INGEST',
     actor: 'ML Telemetry Sync Service',
     timestamp: new Date(Date.now() - 3600000 * 18).toISOString(),
-    details: 'Hydrological and radar risk threshold feed updated across 71 habitations.'
+    details: 'Hydrological and radar risk threshold feed updated across 74 habitations.'
   }
 ];
 
@@ -565,17 +565,17 @@ export async function getDashboardSummary() {
   const rejected = decisions.filter(d => d.status === 'REJECTED').length;
 
   return {
-    totalVillages: 71,
+    totalVillages: 74,
     villagesByRiskLevel: {
-      CRITICAL: 17,
-      HIGH: 24,
-      MEDIUM: 20,
-      LOW: 10,
+      CRITICAL: 20,
+      HIGH: 28,
+      MEDIUM: 23,
+      LOW: 3,
     },
     villagesByPriorityLevel: {
-      IMMEDIATE: 18,
-      SHORT_TERM: 32,
-      MEDIUM_TERM: 21,
+      IMMEDIATE: 48,
+      SHORT_TERM: 23,
+      MEDIUM_TERM: 3,
     },
     totalRelocationSites: 45,
     sitesOverCapacity: 0,

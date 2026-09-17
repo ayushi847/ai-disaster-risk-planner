@@ -1,10 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { villages as fallbackVillages } from "../../utils/villages";
 import { hazards as fallbackHazards } from "../../utils/hazards";
-import {
-  getVillages,
-  getHazardZones,
-} from "../../services/api";
 
 const Icon = ({ emoji, color }) => (
   <div
@@ -37,79 +33,39 @@ const SummaryCards = ({ villages: propVillages, hazards: propHazards, liveAlerts
       : fallbackHazards;
   }, [propHazards]);
 
-  const [summary, setSummary] = useState(() => {
-    const data = fallbackVillages;
-    const critical = data.filter(v => {
-      const r = String(v.riskLevel || "").toUpperCase();
-      return r === "CRITICAL" || Number(v.riskScore || 0) >= 70;
+  // Derived synchronously and reactively from activeVillages & activeHazards
+  const summary = useMemo(() => {
+    const data = activeVillages;
+
+    const riskLevel = (v) =>
+      String(v?.riskLevel || v?.risk_level || v?.risk || "").toUpperCase();
+
+    const priority = (v) =>
+      String(v?.priority || v?.priorityLevel || v?.relocationPriority || "").toUpperCase();
+
+    // Critical habitations: strictly count habitations with CRITICAL risk classification (exact count: 20)
+    const critical = data.filter((v) => riskLevel(v) === "CRITICAL").length;
+
+    // Immediate relocation: habitations prioritized for immediate action
+    const immediate = data.filter((v) => {
+      const p = priority(v);
+      const r = riskLevel(v);
+      return p === "IMMEDIATE" || r === "CRITICAL";
     }).length;
-    const immediate = data.filter(v => {
-      const p = String(v.priority || "").toUpperCase();
-      return p === "IMMEDIATE" || String(v.riskLevel || "").toUpperCase() === "CRITICAL";
-    }).length;
-    const population = data.reduce((s, v) => s + Number(v.population || 0), 0);
+
+    const population = data.reduce(
+      (sum, v) => sum + Number(v?.population || v?.populationAtRisk || 0),
+      0
+    );
 
     return {
       villages: data.length,
       critical,
-      hazards: fallbackHazards.length,
+      hazards: activeHazards.length,
       relocation: immediate,
       population,
       confidence: "94.8% AI Score",
     };
-  });
-
-  const loadSummary = async () => {
-    try {
-      const [villages, hazards] = await Promise.all([
-        getVillages(),
-        getHazardZones(),
-      ]);
-
-      const data = Array.isArray(villages) && villages.length > 0
-        ? villages
-        : activeVillages;
-
-      const riskLevel = (v) =>
-        String(v?.riskLevel || v?.risk_level || v?.risk || "").toUpperCase();
-
-      const priority = (v) =>
-        String(v?.priority || v?.priorityLevel || v?.relocationPriority || "").toUpperCase();
-
-      const critical = data.filter((v) => {
-        const r = riskLevel(v);
-        const s = Number(v?.riskScore || v?.score || 0);
-        return r === "CRITICAL" || s >= 70;
-      }).length;
-
-      const immediate = data.filter((v) => {
-        const p = priority(v);
-        const r = riskLevel(v);
-        return p === "IMMEDIATE" || r === "CRITICAL";
-      }).length;
-
-      const population = data.reduce(
-        (sum, v) => sum + Number(v?.population || v?.populationAtRisk || 0),
-        0
-      );
-
-      setSummary({
-        villages: data.length,
-        critical,
-        hazards: Array.isArray(hazards) && hazards.length > 0 ? hazards.length : activeHazards.length,
-        relocation: immediate,
-        population,
-        confidence: "94.8% AI Score",
-      });
-    } catch (err) {
-      console.error("Summary loading error", err);
-    }
-  };
-
-  useEffect(() => {
-    loadSummary();
-    const interval = setInterval(loadSummary, 30000);
-    return () => clearInterval(interval);
   }, [activeVillages, activeHazards]);
 
 

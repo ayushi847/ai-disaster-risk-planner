@@ -1,4 +1,23 @@
+import { useEffect, useState } from "react";
+import { villages as fallbackVillages } from "../../utils/villages";
+import { getVillages } from "../../services/api";
+
 const Header = () => {
+  const [totalHabitations, setTotalHabitations] = useState(fallbackVillages.length);
+  const [criticalZones, setCriticalZones] = useState(() =>
+    fallbackVillages.filter(v => String(v.riskLevel || "").toUpperCase() === "CRITICAL").length
+  );
+
+  useEffect(() => {
+    getVillages().then(list => {
+      if (Array.isArray(list) && list.length > 0) {
+        setTotalHabitations(list.length);
+        const crit = list.filter(v => String(v?.riskLevel || "").toUpperCase() === "CRITICAL").length;
+        setCriticalZones(crit);
+      }
+    }).catch(() => {});
+  }, []);
+
   return (
     <header
       style={{
@@ -72,7 +91,7 @@ const Header = () => {
           }}
         >
           <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#3b82f6", display: "inline-block", flexShrink: 0 }} />
-          <span style={{ fontSize: "12px", color: "#475569", fontWeight: "400" }}>PostGIS · 71 Habitations</span>
+          <span style={{ fontSize: "12px", color: "#475569", fontWeight: "400" }}>PostGIS · {totalHabitations} Habitations</span>
         </div>
 
         {/* Critical Zones */}
@@ -84,7 +103,7 @@ const Header = () => {
           }}
         >
           <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#ef4444", display: "inline-block", flexShrink: 0 }} />
-          <span style={{ fontSize: "12px", color: "#475569", fontWeight: "400" }}>17 Critical Zones</span>
+          <span style={{ fontSize: "12px", color: "#475569", fontWeight: "400" }}>{criticalZones} Critical Zones</span>
         </div>
 
         {/* Authority Portal */}
