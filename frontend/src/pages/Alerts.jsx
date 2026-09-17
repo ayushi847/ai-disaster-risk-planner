@@ -236,14 +236,10 @@ const Alerts = () => {
 
   // Helper to resolve physical Estimated Time-to-Impact
   const resolveETI = (tel, village, hazard, score, type) => {
-    if (tel?.estimatedTimeToImpact) {
-      return tel.estimatedTimeToImpact;
-    }
-    if (village?.estimatedTimeToImpact) {
-      return village.estimatedTimeToImpact;
-    }
     const h = String(hazard || "").toLowerCase();
-    if (type === "CRITICAL" || score >= 75) {
+    const isCrit = type === "CRITICAL" || score >= 75 || String(village?.riskLevel || "").toUpperCase() === "CRITICAL";
+
+    if (isCrit) {
       if (h.includes("flash")) {
         return {
           hoursMin: 2,
@@ -251,9 +247,9 @@ const Alerts = () => {
           timeWindowFormatted: "2 – 4 Hours",
           urgencyLevel: "IMMINENT_CRITICAL",
           leadTimeCategory: "CRITICAL_WINDOW (<4h)",
-          circumstanceCondition: "Torrential downpour exceeding flash drainage run-off capacity.",
-          impactSummary: "Severe flash inundation impact expected within 2–4 hours if torrential rainfall persists.",
-          recommendedEvacuationAction: "Execute immediate tactical evacuation to high ground."
+          circumstanceCondition: "Torrential cloudburst & steep catchment runoff exceeding drainage capacity.",
+          impactSummary: "Severe flash inundation impact expected within 2–4 hours if downpour persists.",
+          recommendedEvacuationAction: "Execute immediate tactical evacuation to designated elevated safety zones."
         };
       }
       if (h.includes("landslide")) {
@@ -263,9 +259,9 @@ const Alerts = () => {
           timeWindowFormatted: "3 – 6 Hours",
           urgencyLevel: "IMMINENT_CRITICAL",
           leadTimeCategory: "CRITICAL_WINDOW (<6h)",
-          circumstanceCondition: "Critical pore water saturation breaching slope shear stability.",
-          impactSummary: "Catastrophic slope failure impact expected within 3–6 hours if saturation persists.",
-          recommendedEvacuationAction: "Clear all homes in hillside runout zones immediately."
+          circumstanceCondition: "Critical pore water saturation breaching slope shear stability threshold.",
+          impactSummary: "Catastrophic debris flow and slope failure expected within 3–6 hours under continuous saturation.",
+          recommendedEvacuationAction: "Evacuate all habitations in slope runout zones immediately."
         };
       }
       if (h.includes("cyclone") || h.includes("surge")) {
@@ -275,9 +271,21 @@ const Alerts = () => {
           timeWindowFormatted: "3 – 6 Hours",
           urgencyLevel: "IMMINENT_CRITICAL",
           leadTimeCategory: "CRITICAL_WINDOW (<6h)",
-          circumstanceCondition: "Gale-force onshore winds converging with astronomical tidal surge.",
-          impactSummary: "Coastal surge inundation impact expected within 3–6 hours on current trajectory.",
-          recommendedEvacuationAction: "Evacuate coastal belt to cyclone multi-purpose shelters."
+          circumstanceCondition: "Severe onshore squalls converging with peak high-tide astronomical surge.",
+          impactSummary: "Coastal surge inundation impact expected within 3–6 hours along low-lying shoreline.",
+          recommendedEvacuationAction: "Evacuate coastal belt to multi-purpose cyclone shelters immediately."
+        };
+      }
+      if (h.includes("subsidence") || h.includes("mining")) {
+        return {
+          hoursMin: 4,
+          hoursMax: 8,
+          timeWindowFormatted: "4 – 8 Hours",
+          urgencyLevel: "IMMINENT_CRITICAL",
+          leadTimeCategory: "CRITICAL_WINDOW (<8h)",
+          circumstanceCondition: "Subterranean colliery fracture propagation approaching ground breach.",
+          impactSummary: "Subsurface subsidence crater formation expected within 4–8 hours under continuous stress.",
+          recommendedEvacuationAction: "Cordon collapse perimeter and evacuate surface habitations immediately."
         };
       }
       return {
@@ -291,6 +299,42 @@ const Alerts = () => {
         recommendedEvacuationAction: "Execute priority shelter transit along designated corridors."
       };
     } else if (type === "URGENT" || score >= 55) {
+      if (h.includes("flash") || h.includes("landslide")) {
+        return {
+          hoursMin: 6,
+          hoursMax: 12,
+          timeWindowFormatted: "6 – 12 Hours",
+          urgencyLevel: "HIGH_CONVERGENCE",
+          leadTimeCategory: "ELEVATED_WINDOW (6-12h)",
+          circumstanceCondition: "Rising pore pressure and upstream rainfall convergence.",
+          impactSummary: "Potential slope instability or flash runoff escalation expected within 6–12 hours.",
+          recommendedEvacuationAction: "Alert frontline rescue teams and stage evacuation vehicles."
+        };
+      }
+      if (h.includes("cyclone") || h.includes("surge")) {
+        return {
+          hoursMin: 12,
+          hoursMax: 18,
+          timeWindowFormatted: "12 – 18 Hours",
+          urgencyLevel: "HIGH_CONVERGENCE",
+          leadTimeCategory: "ELEVATED_WINDOW (12-18h)",
+          circumstanceCondition: "Outer cyclone spiral bands approaching coastal radar perimeter.",
+          impactSummary: "Cyclonic squall and high-tide surge impact expected within 12–18 hours.",
+          recommendedEvacuationAction: "Secure boats, verify relief shelters, and advise coastal movement restrictions."
+        };
+      }
+      if (h.includes("subsidence") || h.includes("mining")) {
+        return {
+          hoursMin: 18,
+          hoursMax: 24,
+          timeWindowFormatted: "18 – 24 Hours",
+          urgencyLevel: "HIGH_CONVERGENCE",
+          leadTimeCategory: "ELEVATED_WINDOW (18-24h)",
+          circumstanceCondition: "Elevated acoustic emissions and subterranean strata movement.",
+          impactSummary: "Progressive ground deformation anticipated within 18–24 hours.",
+          recommendedEvacuationAction: "Restrict vehicular transit across mining fracture corridors."
+        };
+      }
       return {
         hoursMin: 12,
         hoursMax: 18,
@@ -452,14 +496,14 @@ const Alerts = () => {
       ) {
         const staticScore = getScore(village);
         const riskLvl = getRisk(village);
-        const alertType = riskLvl === "CRITICAL" ? "URGENT" : "HIGH";
-        const icon = riskLvl === "CRITICAL" ? "🔶" : "🟡";
+        const alertType = riskLvl === "CRITICAL" ? "CRITICAL" : "URGENT";
+        const icon = riskLvl === "CRITICAL" ? "🔴" : "🟠";
         const eti = resolveETI(tel, village, hazard, staticScore, alertType);
 
         generated.push({
           id: `structural-${village.id ?? index}`,
           type: alertType,
-          title: `${icon} ${hazard} — Structural Risk Alert`,
+          title: `${icon} ${hazard} — ${alertType === "CRITICAL" ? "Critical Emergency Warning" : "Elevated Risk Watch"}`,
           message: `${villageName} in ${district} has a ${riskLvl} baseline risk (score: ${staticScore.toFixed(1)}) based on geomorphic assessment, historical disaster patterns, and population vulnerability.`,
           village: villageName,
           district,
@@ -472,7 +516,7 @@ const Alerts = () => {
           telemetry: tel,
           estimatedTimeToImpact: eti,
           action: eti.recommendedEvacuationAction || (riskLvl === "CRITICAL" 
-            ? "Priority relocation assessment required. Verify structural safety and maintain evacuation readiness."
+            ? "Immediate evacuation transport mobilization and priority shelter readiness required."
             : "Enhanced monitoring recommended. Review drainage infrastructure and slope stability reports."),
           time: new Date(),
         });
