@@ -1785,6 +1785,7 @@ const AlertItem = ({
                     locationItem={locationItem}
                     compact={true}
                     showHeading={false}
+                    theme="dark"
                     maxItems={5}
                   />
                 </div>

@@ -11,16 +11,10 @@ const VillageDetails = ({
   onViewOnMap,
   embedded = false,
 }) => {
-  const [decisionState, setDecisionState] = useState(null); // 'APPROVED' | 'OVERRIDDEN'
-  const [overrideReason, setOverrideReason] = useState("");
-  const [showOverrideInput, setShowOverrideInput] = useState(false);
   const [liveWeather, setLiveWeather] = useState(null);
 
   useEffect(() => {
     if (!village?.id) return;
-    setDecisionState(null);
-    setShowOverrideInput(false);
-    setOverrideReason("");
 
     // Fallback instant defaults so UI is never blank
     setLiveWeather({
@@ -657,104 +651,9 @@ const VillageDetails = ({
         }}
         title="Nearest Emergency Response Helplines"
         compact={true}
+        theme="light"
         maxItems={3}
       />
-
-      {/* AUTHORITY DECISION WORKFLOW */}
-      <div
-        style={{
-          padding: "10px",
-          background: decisionState === "APPROVED" ? "#ecfdf5" : (decisionState === "OVERRIDDEN" ? "#fff7ed" : "#f8fafc"),
-          border: `1px solid ${decisionState === "APPROVED" ? "#6ee7b7" : (decisionState === "OVERRIDDEN" ? "#fed7aa" : "#e2e8f0")}`,
-          borderRadius: "8px",
-        }}
-      >
-        <div style={{ fontSize: "11px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-          🏛️ District Disaster Authority Action
-        </div>
-
-        {decisionState === "APPROVED" ? (
-          <div style={{ color: "#065f46", fontSize: "11px", fontWeight: "600", padding: "4px 0" }}>
-            ✅ Relocation Directive Approved & Synced to Ministry Audit Log.
-          </div>
-        ) : decisionState === "OVERRIDDEN" ? (
-          <div style={{ color: "#9a3412", fontSize: "11px", padding: "4px 0" }}>
-            ⚠️ <strong>Directive Overridden:</strong> {overrideReason || "Re-routed to district secondary high-elevation facility."}
-          </div>
-        ) : (
-          <div style={{ display: "flex", gap: "6px" }}>
-            <button
-              onClick={() => setDecisionState("APPROVED")}
-              style={{
-                flex: 1,
-                padding: "6px 8px",
-                background: "#059669",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                fontSize: "11px",
-                fontWeight: "700",
-                cursor: "pointer",
-              }}
-            >
-              ✅ Approve Directive
-            </button>
-
-            <button
-              onClick={() => setShowOverrideInput(!showOverrideInput)}
-              style={{
-                flex: 1,
-                padding: "6px 8px",
-                background: "#d97706",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                fontSize: "11px",
-                fontWeight: "700",
-                cursor: "pointer",
-              }}
-            >
-              ⚠️ Override Route
-            </button>
-          </div>
-        )}
-
-        {showOverrideInput && !decisionState && (
-          <div style={{ marginTop: "8px" }}>
-            <input
-              type="text"
-              placeholder="Enter official justification..."
-              value={overrideReason}
-              onChange={(e) => setOverrideReason(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "5px 8px",
-                fontSize: "11px",
-                border: "1px solid #cbd5e1",
-                borderRadius: "4px",
-                boxSizing: "border-box",
-                marginBottom: "5px",
-              }}
-            />
-            <button
-              onClick={() => setDecisionState("OVERRIDDEN")}
-              style={{
-                width: "100%",
-                padding: "5px",
-                background: "#ea580c",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                fontSize: "11px",
-                fontWeight: "700",
-                cursor: "pointer",
-              }}
-            >
-              Confirm Official Override
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

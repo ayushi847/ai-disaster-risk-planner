@@ -10,13 +10,14 @@ import {
 /**
  * AuthorityHelplinePanel Component
  * Renders nearest emergency response authorities (DDMA, SDMA, NDRF, 112)
- * with 1-Click Direct Phone Calling and Pre-Drafted SOS SMS dispatch.
+ * with robust, pixel-perfect inline layout & 1-Click Call / Pre-Drafted SOS SMS dispatch.
  */
 const AuthorityHelplinePanel = ({
   locationItem = {},
   compact = false,
-  title = "Nearest Emergency Authorities & SOS Dispatch",
+  title = "Nearest Emergency Response Helplines",
   showHeading = true,
+  theme = "light", // 'light' | 'dark'
   maxItems = 4
 }) => {
   const [selectedPreviewAuth, setSelectedPreviewAuth] = useState(null);
@@ -40,25 +41,68 @@ const AuthorityHelplinePanel = ({
     return null;
   }
 
+  const isDark = theme === "dark";
+
+  // Container styling
+  const containerStyle = {
+    background: isDark ? "#0f172a" : "#ffffff",
+    border: isDark ? "1px solid #1e293b" : "1px solid #fecaca",
+    borderRadius: "10px",
+    padding: compact ? "10px 12px" : "14px",
+    boxShadow: isDark ? "0 4px 12px rgba(0,0,0,0.3)" : "0 2px 8px rgba(239, 68, 68, 0.08)",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    boxSizing: "border-box",
+  };
+
   return (
-    <div className={`rounded-xl border border-rose-500/20 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-lg ${compact ? "p-3" : "p-4"} backdrop-blur-md`}>
+    <div style={containerStyle}>
       {/* Header */}
       {showHeading && (
-        <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-xs uppercase font-bold tracking-wider text-rose-400 flex items-center gap-1.5">
-              🚨 {title}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "8px",
+            marginBottom: "10px",
+            paddingBottom: "8px",
+            borderBottom: isDark ? "1px solid #1e293b" : "1px solid #fee2e2",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+            <span style={{ fontSize: "15px" }}>🚨</span>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: "800",
+                color: isDark ? "#f87171" : "#b91c1c",
+                letterSpacing: "0.3px",
+                textTransform: "uppercase",
+              }}
+            >
+              {title}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700">
+
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: "600",
+              color: isDark ? "#94a3b8" : "#64748b",
+              background: isDark ? "#1e293b" : "#f1f5f9",
+              padding: "2px 8px",
+              borderRadius: "12px",
+              border: isDark ? "1px solid #334155" : "1px solid #e2e8f0",
+            }}
+          >
             {locationItem.district ? `${locationItem.district} Sector` : "Geo-Dispatched"}
           </span>
         </div>
       )}
 
-      {/* Authority Cards Grid */}
-      <div className="space-y-2.5">
+      {/* Authorities List */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {authorities.map((auth) => {
           const smsText = generateEmergencySmsTemplate(auth, locationItem);
           const smsHref = getSmsUri(auth.phone, smsText);
@@ -68,49 +112,151 @@ const AuthorityHelplinePanel = ({
           return (
             <div
               key={auth.id}
-              className="rounded-lg border border-slate-800 bg-slate-900/80 hover:border-slate-700 p-2.5 transition-all duration-200"
+              style={{
+                background: isDark ? "#1e293b" : "#f8fafc",
+                border: isDark ? "1px solid #334155" : "1px solid #e2e8f0",
+                borderRadius: "8px",
+                padding: "9px 11px",
+                transition: "all 0.15s ease",
+              }}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              {/* Top Row: Authority Details & Action Buttons */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                }}
+              >
                 {/* Authority Information */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold text-white tracking-wide truncate max-w-[260px]">
+                <div style={{ minWidth: "200px", flex: "1 1 200px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        color: isDark ? "#f1f5f9" : "#0f172a",
+                        lineHeight: "1.3",
+                      }}
+                    >
                       {auth.name}
                     </span>
+
                     <span
-                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
-                        auth.badge?.includes("112")
-                          ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: "700",
+                        padding: "1px 6px",
+                        borderRadius: "4px",
+                        border: "1px solid",
+                        background: auth.badge?.includes("112")
+                          ? (isDark ? "rgba(245, 158, 11, 0.15)" : "#fef3c7")
                           : auth.badge?.includes("DEOC")
-                          ? "bg-rose-500/10 text-rose-300 border-rose-500/30"
+                          ? (isDark ? "rgba(244, 63, 94, 0.15)" : "#ffe4e6")
                           : auth.badge?.includes("NDRF")
-                          ? "bg-indigo-500/10 text-indigo-300 border-indigo-500/30"
-                          : "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
-                      }`}
+                          ? (isDark ? "rgba(99, 102, 241, 0.15)" : "#e0e7ff")
+                          : (isDark ? "rgba(6, 182, 212, 0.15)" : "#cffafe"),
+                        borderColor: auth.badge?.includes("112")
+                          ? "#f59e0b"
+                          : auth.badge?.includes("DEOC")
+                          ? "#f43f5e"
+                          : auth.badge?.includes("NDRF")
+                          ? "#6366f1"
+                          : "#06b6d4",
+                        color: auth.badge?.includes("112")
+                          ? (isDark ? "#fbbf24" : "#b45309")
+                          : auth.badge?.includes("DEOC")
+                          ? (isDark ? "#fb7185" : "#be123c")
+                          : auth.badge?.includes("NDRF")
+                          ? (isDark ? "#818cf8" : "#4338ca")
+                          : (isDark ? "#22d3ee" : "#0e7490"),
+                      }}
                     >
                       {auth.badge || "DEOC"}
                     </span>
+
                     {auth.available24x7 && (
-                      <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block" />
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: "700",
+                          color: isDark ? "#34d399" : "#059669",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "3px",
+                          fontFamily: "monospace",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: "5px",
+                            height: "5px",
+                            borderRadius: "50%",
+                            background: isDark ? "#34d399" : "#059669",
+                            display: "inline-block",
+                          }}
+                        />
                         24x7
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-slate-400 truncate mt-0.5 flex items-center gap-2">
+
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: isDark ? "#94a3b8" : "#64748b",
+                      marginTop: "3px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      flexWrap: "wrap",
+                    }}
+                  >
                     <span>{auth.department}</span>
-                    <span className="text-slate-600">•</span>
-                    <span className="font-mono text-slate-300">{auth.displayPhone || auth.phone}</span>
+                    <span style={{ color: isDark ? "#475569" : "#cbd5e1" }}>•</span>
+                    <span
+                      style={{
+                        fontFamily: "monospace",
+                        fontWeight: "700",
+                        color: isDark ? "#38bdf8" : "#0369a1",
+                      }}
+                    >
+                      📞 {auth.displayPhone || auth.phone}
+                    </span>
                   </div>
                 </div>
 
-                {/* Side-by-Side Action Buttons: CALL and SMS */}
-                <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                {/* Side-by-Side Action Buttons: CALL & SMS */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    flexWrap: "wrap",
+                    marginLeft: "auto",
+                  }}
+                >
                   {/* CALL BUTTON */}
                   <a
                     href={callHref}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-semibold shadow-md shadow-emerald-900/30 transition-all duration-150"
-                    title={`Direct Call: ${auth.phone}`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      background: "#059669",
+                      color: "#ffffff",
+                      padding: "5px 11px",
+                      borderRadius: "6px",
+                      fontSize: "11.5px",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                      boxShadow: "0 2px 4px rgba(5, 150, 105, 0.25)",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                    title={`Call ${auth.name} directly (${auth.phone})`}
                   >
                     <span>📞</span>
                     <span>Call</span>
@@ -119,46 +265,124 @@ const AuthorityHelplinePanel = ({
                   {/* SMS SOS BUTTON */}
                   <a
                     href={smsHref}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 active:scale-95 text-white text-xs font-semibold shadow-md shadow-blue-900/30 transition-all duration-150"
-                    title="Send Pre-Drafted SOS SMS"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      background: "linear-gradient(135deg, #0284c7, #2563eb)",
+                      color: "#ffffff",
+                      padding: "5px 11px",
+                      borderRadius: "6px",
+                      fontSize: "11.5px",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                      boxShadow: "0 2px 4px rgba(2, 132, 199, 0.25)",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                    title="Open SMS app with ready-to-send SOS template"
                   >
                     <span>💬</span>
                     <span>Send SMS</span>
                   </a>
 
-                  {/* Copy / Preview Toggle */}
+                  {/* PREVIEW / COPY TEMPLATE TOGGLE */}
                   <button
                     type="button"
                     onClick={() => setSelectedPreviewAuth(isPreviewOpen ? null : auth)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 text-xs transition-colors"
-                    title="View / Copy Pre-drafted Template"
+                    style={{
+                      padding: "5px 7px",
+                      borderRadius: "6px",
+                      background: isDark ? "#334155" : "#e2e8f0",
+                      border: isDark ? "1px solid #475569" : "1px solid #cbd5e1",
+                      color: isDark ? "#f1f5f9" : "#334155",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "3px",
+                    }}
+                    title="View & copy pre-drafted message"
                   >
-                    {isPreviewOpen ? "▲" : "📋"}
+                    <span>{isPreviewOpen ? "▲" : "📋"}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Collapsible SMS Preview & WhatsApp Copy Box */}
+              {/* Collapsible SMS Preview Box */}
               {isPreviewOpen && (
-                <div className="mt-2.5 pt-2.5 border-t border-slate-800/80 text-xs">
-                  <div className="flex items-center justify-between text-slate-400 mb-1.5">
-                    <span className="font-semibold text-slate-300 flex items-center gap-1">
-                      📱 Pre-Drafted SMS Template (Ready to Dispatch)
+                <div
+                  style={{
+                    marginTop: "8px",
+                    paddingTop: "8px",
+                    borderTop: isDark ? "1px solid #334155" : "1px solid #e2e8f0",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: "700",
+                        color: isDark ? "#cbd5e1" : "#334155",
+                      }}
+                    >
+                      📱 Pre-Drafted SOS Message (Ready to Send):
                     </span>
+
                     <button
                       type="button"
                       onClick={(e) => handleCopy(auth, e)}
-                      className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 hover:text-cyan-300 font-medium text-[11px] border border-slate-700 flex items-center gap-1 transition-colors"
+                      style={{
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                        background: copiedId === auth.id ? "#059669" : (isDark ? "#334155" : "#e2e8f0"),
+                        color: copiedId === auth.id ? "#ffffff" : (isDark ? "#38bdf8" : "#0284c7"),
+                        border: "none",
+                        fontSize: "10.5px",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                      }}
                     >
                       {copiedId === auth.id ? "✓ Copied!" : "Copy Report"}
                     </button>
                   </div>
-                  <pre className="p-2 rounded bg-black/50 text-slate-300 font-mono text-[11px] whitespace-pre-wrap leading-relaxed border border-slate-850 select-all overflow-x-auto">
+
+                  <pre
+                    style={{
+                      margin: 0,
+                      padding: "8px",
+                      borderRadius: "6px",
+                      background: isDark ? "#090d16" : "#ffffff",
+                      border: isDark ? "1px solid #1e293b" : "1px solid #cbd5e1",
+                      color: isDark ? "#e2e8f0" : "#1e293b",
+                      fontFamily: "monospace",
+                      fontSize: "10.5px",
+                      lineHeight: "1.4",
+                      whiteSpace: "pre-wrap",
+                      userSelect: "all",
+                      overflowX: "auto",
+                    }}
+                  >
                     {smsText}
                   </pre>
-                  <p className="text-[10px] text-slate-400 mt-1.5 italic">
-                    💡 Tapping "Send SMS" opens your device's SMS app with this message pre-filled. You just need to tap Send.
-                  </p>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: isDark ? "#94a3b8" : "#64748b",
+                      fontStyle: "italic",
+                      marginTop: "4px",
+                    }}
+                  >
+                    💡 Tapping "Send SMS" opens your phone's SMS app with this message pre-filled. You just tap Send.
+                  </div>
                 </div>
               )}
             </div>
@@ -166,12 +390,48 @@ const AuthorityHelplinePanel = ({
         })}
       </div>
 
-      {/* Universal Quick Dispatch Note */}
-      <div className="mt-3 pt-2.5 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
-        <span className="flex items-center gap-1">
-          🛡️ Emergency Dial: <a href="tel:112" className="text-amber-400 font-bold hover:underline">112 (ERSS)</a> | <a href="tel:1078" className="text-cyan-400 font-bold hover:underline">1078 (NDMA)</a>
+      {/* Universal Quick Dial Footer */}
+      <div
+        style={{
+          marginTop: "10px",
+          paddingTop: "7px",
+          borderTop: isDark ? "1px solid #1e293b" : "1px solid #fee2e2",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "6px",
+          fontSize: "11px",
+          color: isDark ? "#94a3b8" : "#64748b",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+          <span>🛡️ Universal Helpline:</span>
+          <a
+            href="tel:112"
+            style={{
+              color: "#d97706",
+              fontWeight: "700",
+              textDecoration: "none",
+            }}
+          >
+            112 (ERSS)
+          </a>
+          <span>|</span>
+          <a
+            href="tel:1078"
+            style={{
+              color: "#0284c7",
+              fontWeight: "700",
+              textDecoration: "none",
+            }}
+          >
+            1078 (NDMA)
+          </a>
+        </div>
+        <span style={{ fontSize: "10px", color: isDark ? "#64748b" : "#94a3b8" }}>
+          Geo-coordinates & map pin attached
         </span>
-        <span className="text-[10px] text-slate-400">Geo-coordinates & GPS pin attached to SMS</span>
       </div>
     </div>
   );
