@@ -106,10 +106,12 @@ export async function getVillages() {
         villageData = villageData.map(v => {
           const ml = mlMap[v.id];
           if (ml) {
+            const isCritical = (v.riskLevel === "CRITICAL" || ml.riskLevel === "CRITICAL" || (ml.score != null && ml.score >= 70));
+            const resolvedRiskLevel = isCritical ? "CRITICAL" : (ml.riskLevel || v.riskLevel || "HIGH");
             return {
               ...v,
               riskScore: ml.score || v.riskScore,
-              riskLevel: ml.riskLevel || v.riskLevel,
+              riskLevel: resolvedRiskLevel,
               hazardType: ml.hazardType || v.hazardType,
               hazardDetail: ml.hazardDetail || v.hazardDetail,
               dominantFactor: ml.dominantFactor || v.dominantFactor,
