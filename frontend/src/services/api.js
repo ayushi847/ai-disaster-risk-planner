@@ -53,9 +53,12 @@ export async function getVillages() {
       villageData = rawList.map(v => {
         const fb = fallbackMap[v.id] || {};
         const coords = v.geometry?.coordinates || [];
-        // Preserve rich curated fields if backend returns null/empty
-        const riskLevel = v.riskLevel || fb.riskLevel || "MEDIUM";
-        const priority = v.priorityLevel || fb.priority || "SHORT_TERM";
+        // Curated CRITICAL classifications are ground truth and must remain CRITICAL
+        const isCrit = (v.riskLevel === "CRITICAL" || fb.riskLevel === "CRITICAL");
+        const riskLevel = isCrit ? "CRITICAL" : (v.riskLevel || fb.riskLevel || "MEDIUM");
+        const priority = (v.priorityLevel === "IMMEDIATE" || fb.priority === "IMMEDIATE" || isCrit)
+          ? "IMMEDIATE"
+          : (v.priorityLevel || fb.priority || "SHORT_TERM");
         const riskScore = (v.riskScore !== null && v.riskScore !== undefined && v.riskScore > 0) 
           ? v.riskScore 
           : (fb.riskScore || 50.0);
@@ -105,15 +108,22 @@ export async function getVillages() {
 
         villageData = villageData.map(v => {
           const ml = mlMap[v.id];
+          const fb = fallbackMap[v.id] || {};
+          // Preserve authoritative curated/backend riskLevel (CRITICAL habitations must stay CRITICAL)
+          const isCritical = (v.riskLevel === "CRITICAL" || fb.riskLevel === "CRITICAL" || ml?.riskLevel === "CRITICAL");
+          const resolvedRiskLevel = isCritical
+            ? "CRITICAL"
+            : (v.riskLevel || ml?.riskLevel || fb.riskLevel || "MEDIUM");
+          const resolvedPriority = (v.priority === "IMMEDIATE" || fb.priority === "IMMEDIATE" || isCritical)
+            ? "IMMEDIATE"
+            : (v.priority || fb.priority || "SHORT_TERM");
+
           if (ml) {
-            // Preserve authoritative curated/backend riskLevel (CRITICAL stays CRITICAL)
-            const resolvedRiskLevel = (v.riskLevel === "CRITICAL" || ml.riskLevel === "CRITICAL")
-              ? "CRITICAL"
-              : (v.riskLevel || ml.riskLevel || "MEDIUM");
             return {
               ...v,
               riskScore: (typeof ml.score === "number" && ml.score > 0) ? ml.score : v.riskScore,
               riskLevel: resolvedRiskLevel,
+              priority: resolvedPriority,
               hazardType: ml.hazardType || v.hazardType,
               hazardDetail: ml.hazardDetail || v.hazardDetail,
               dominantFactor: ml.dominantFactor || v.dominantFactor,
@@ -125,7 +135,11 @@ export async function getVillages() {
               aiSummary: ml.aiSummary,
             };
           }
-          return v;
+          return {
+            ...v,
+            riskLevel: resolvedRiskLevel,
+            priority: resolvedPriority,
+          };
         });
       }
     } catch {
