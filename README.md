@@ -16,7 +16,7 @@ An end-to-end, multi-tier decision-support platform designed for disaster manage
 
 ---
 
-## 📌 Table of Contents
+## 📌 Table of Contents:-
 
 - [Overview](#-overview)
 - [System Architecture](#-system-architecture)
